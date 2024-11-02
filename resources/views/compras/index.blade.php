@@ -13,7 +13,7 @@
         </div>
     @endif
 
-  
+
     <form class="mb-3">
         <div class="input-group">
             <input type="text" id="search" class="form-control" placeholder="Buscar por producto, proveedor o almacén">
@@ -21,6 +21,8 @@
     </form>
 
     <a href="{{ route('compras.create') }}" class="btn btn-primary mb-3">Agregar Compra</a>
+
+    <a href="{{ route('compras.reporte') }}" class="btn btn-success mb-3"> <i class="fas fa-file-pdf"></i>  Generar Reporte PDF</a>
 
     <div class="card">
         <div class="card-body">
@@ -80,7 +82,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-       
+
         document.querySelectorAll('.delete-btn').forEach(function(button) {
             button.addEventListener('click', function() {
                 const form = this.closest('.delete-form');
@@ -101,7 +103,7 @@
             });
         });
 
-       
+
         document.getElementById('search').addEventListener('keyup', function() {
             const searchValue = this.value.toLowerCase();
             const rows = document.querySelectorAll('#compras-table tr');

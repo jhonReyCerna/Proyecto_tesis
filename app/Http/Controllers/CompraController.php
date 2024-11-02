@@ -6,24 +6,34 @@ use App\Models\Almacen;
 use App\Models\Compra;
 use App\Models\Producto;
 use App\Models\Proveedor;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class CompraController extends Controller
 {
     public function index(Request $request)
-    {
-        $search = $request->input('search');
-        $compras = Compra::with(['producto', 'proveedor', 'almacen'])
-            ->when($search, function($query) use ($search) {
-                return $query->whereHas('producto', function($q) use ($search) {
+{
+    $search = $request->input('search');
+
+    $compras = Compra::with(['producto', 'proveedor', 'almacen'])
+        ->when($search, function($query) use ($search) {
+            return $query->where(function($q) use ($search) {
+                $q->whereHas('producto', function($q) use ($search) {
+                    $q->where('nombre', 'like', "%{$search}%");
+                })
+                ->orWhereHas('proveedor', function($q) use ($search) {
+                    $q->where('nombre', 'like', "%{$search}%");
+                })
+                ->orWhereHas('almacen', function($q) use ($search) {
                     $q->where('nombre', 'like', "%{$search}%");
                 });
-            })
-            ->paginate(10);
+            });
+        })
+        ->paginate(10);
 
-        return view('compras.index', compact('compras'));
-    }
+    return view('compras.index', compact('compras'));
+}
 
     public function create()
 {
@@ -107,4 +117,12 @@ public function update(Request $request, Compra $compra)
 
         return redirect()->route('compras.index')->with('success', 'Compra eliminada exitosamente.');
     }
+
+    public function generarReportePDF()
+{
+    $compras = Compra::with(['producto', 'proveedor', 'almacen'])->get();
+
+    $pdf = Pdf::loadView('compras.reporte', compact('compras'));
+    return $pdf->download('reporte_compras.pdf');
+}
 }

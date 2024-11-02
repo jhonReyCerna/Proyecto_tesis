@@ -114,6 +114,8 @@ Route::put('compra/update/{compra}', [CompraController::class, 'update'])->name(
 
 Route::delete('compra/destroy/{compra}', [CompraController::class, 'destroy'])->name('compras.destroy');
 
+Route::get('compras/reporte', [CompraController::class, 'generarReportePDF'])->name('compras.reporte');
+
 //--------------------------------------------------------------------------------------------------------------------------
 
 Route::get('venta/index', [VentaController::class, 'index'])->name('ventas.index');
