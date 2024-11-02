@@ -11,8 +11,8 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh; /* Ocupa el alto total de la ventana */
-            flex-direction: column; /* Organiza los elementos en una columna */
+            height: 100vh;
+            flex-direction: column;
         }
         .header {
             text-align: center;
@@ -21,7 +21,7 @@
         .header img {
             max-width: 100px;
             margin-bottom: 10px;
-            filter: blur(3px); /* Aplica un efecto de desenfoque */
+            filter: blur(3px);
         }
         .header h1, .header h2 {
             margin: 0;
@@ -77,7 +77,7 @@
         </tbody>
     </table>
     <div class="details">
-        <!-- Fecha y hora actual en hora peruana -->
+      
         <?php date_default_timezone_set('America/Lima'); ?>
         <p>Fecha y hora de generación: {{ \Carbon\Carbon::now()->format('Y-m-d H:i:s') }}</p>
     </div>

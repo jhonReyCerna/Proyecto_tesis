@@ -28,7 +28,7 @@ class VentaController extends Controller
 
     public function store(Request $request)
 {
-    // Validar los datos de la solicitud
+
     $request->validate([
         'producto_id' => 'required|exists:productos,id_producto',
         'cliente_id' => 'required|exists:clientes,id_cliente',
@@ -41,7 +41,6 @@ class VentaController extends Controller
         'metodo_pago' => 'required|string',
     ]);
 
-    // Crear la venta
     $venta = new Venta();
     $venta->producto_id = $request->producto_id;
     $venta->cliente_id = $request->cliente_id;
@@ -49,19 +48,17 @@ class VentaController extends Controller
     $venta->fecha = $request->fecha;
     $venta->subtotal = $request->subtotal;
     $venta->impuesto = $request->impuesto;
-    $venta->descuento = $request->descuento ?? 0; // Si no hay descuento, asignar 0
+    $venta->descuento = $request->descuento ?? 0;
     $venta->total = $request->total;
     $venta->metodo_pago = $request->metodo_pago;
 
-    // Guardar la venta
     $venta->save();
 
-    // Actualizar el stock del producto
     $producto = Producto::find($request->producto_id);
 
-    // Verificar que haya suficiente stock
+
     if ($producto->stock >= $request->cantidad) {
-        $producto->stock -= $request->cantidad; // Reducir el stock por la cantidad vendida
+        $producto->stock -= $request->cantidad;
         $producto->save();
     } else {
         return redirect()->back()->withErrors(['stock' => 'No hay suficiente stock para completar la venta.']);
@@ -69,13 +66,11 @@ class VentaController extends Controller
 
     return redirect()->route('ventas.index')->with('success', 'Venta creada y stock actualizado.');
 }
-    // Mostrar los detalles de una venta específica
     public function show(Venta $venta)
     {
         return view('ventas.show', compact('venta'));
     }
 
-    // Mostrar el formulario para editar una venta existente
     public function edit(Venta $venta)
     {
         $clientes = Cliente::all();
@@ -83,7 +78,6 @@ class VentaController extends Controller
         return view('ventas.edit', compact('venta', 'clientes', 'productos'));
     }
 
-    // Actualizar una venta en la base de datos
     public function update(Request $request, Venta $venta)
 {
     $request->validate([
@@ -133,13 +127,10 @@ class VentaController extends Controller
 
     public function exportPdf()
     {
-        // Obtener todas las ventas junto con los datos del cliente y producto
         $ventas = Venta::with('cliente', 'producto')->get();
 
-        // Cargar la vista del reporte y pasar los datos de las ventas
         $pdf = Pdf::loadView('ventas.reporte', compact('ventas'));
 
-        // Descargar el archivo PDF con un nombre específico
         return $pdf->download('reporte_ventas.pdf');
     }
 }

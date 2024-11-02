@@ -20,16 +20,16 @@ class CompraController extends Controller
                     $q->where('nombre', 'like', "%{$search}%");
                 });
             })
-            ->paginate(10);  
-        
+            ->paginate(10);
+
         return view('compras.index', compact('compras'));
     }
 
     public function create()
 {
-    $productos = Producto::all(); 
-    $proveedores = Proveedor::all();  
-    $almacenes = Almacen::all();  
+    $productos = Producto::all();
+    $proveedores = Proveedor::all();
+    $almacenes = Almacen::all();
 
     return view('compras.create', compact('productos', 'proveedores', 'almacenes'));
 }
@@ -47,46 +47,40 @@ public function store(Request $request)
         'descripcion' => 'nullable|string|max:255',
     ]);
 
-    // Calcular el total
+
     $total = $request->cantidad * $request->precio_unitario;
 
-    // Crear la compra
     $compra = Compra::create(array_merge($request->all(), ['total' => $total]));
 
-    // Actualizar el stock y el precio del producto
     $producto = Producto::find($request->producto_id);
 
-    // Incrementar el stock
     $producto->stock += $request->cantidad;
 
-    // Si necesitas actualizar el precio, puedes decidir cómo hacerlo.
-    // Un ejemplo simple sería actualizar el precio solo si el nuevo precio es mayor.
     if ($request->precio_unitario > $producto->precio) {
         $producto->precio = $request->precio_unitario;
     }
 
-    // Guardar los cambios en el producto
     $producto->save();
 
     return redirect()->route('compras.index')->with('success', 'Compra registrada con éxito.');
 }
-    
+
     public function show($id)
 {
     $compra = Compra::findOrFail($id);
     return view('compras.show', compact('compra'));
 }
- 
+
     public function edit($id)
 {
-    $compra = Compra::findOrFail($id);  
-    $productos = Producto::all();  
-    $proveedores = Proveedor::all();  
-    $almacenes = Almacen::all();  
+    $compra = Compra::findOrFail($id);
+    $productos = Producto::all();
+    $proveedores = Proveedor::all();
+    $almacenes = Almacen::all();
 
     return view('compras.edit', compact('compra', 'productos', 'proveedores', 'almacenes'));
 }
- 
+
 public function update(Request $request, Compra $compra)
 {
     $validatedData = $request->validate([
@@ -99,7 +93,6 @@ public function update(Request $request, Compra $compra)
         'descripcion' => 'nullable|string',
     ]);
 
-    // Recalcular el total en el servidor
     $total = $validatedData['cantidad'] * $validatedData['precio_unitario'];
 
     $compra->update(array_merge($validatedData, ['total' => $total]));
@@ -107,7 +100,7 @@ public function update(Request $request, Compra $compra)
     return redirect()->route('compras.index')->with('success', 'Compra actualizada correctamente.');
 }
 
- 
+
     public function destroy(Compra $compra)
     {
         $compra->delete();
