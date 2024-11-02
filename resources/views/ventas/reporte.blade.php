@@ -5,52 +5,107 @@
     <title>Reporte de Ventas</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
             margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            flex-direction: column;
+            padding: 40px;
+            background-color: white;
         }
+
+        .header-container {
+            position: relative;
+            border-bottom: 2px solid #1a237e;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            min-height: 180px;
+        }
+
         .header {
-            text-align: center;
-            padding: 10px;
+            width: 60%;
         }
-        .header img {
-            max-width: 100px;
-            margin-bottom: 10px;
-            filter: blur(3px);
-        }
-        .header h1, .header h2 {
+
+        .header h1 {
+            color: #ffe608;
+            font-size: 24px;
             margin: 0;
         }
-        .details {
-            margin-top: 10px;
-            text-align: right;
-            font-size: 0.9em;
+
+        .header h2 {
+            color: #424242;
+            font-size: 18px;
+            margin: 5px 0 0;
+            font-weight: normal;
         }
+
+        .logo {
+            position: absolute;
+            top: 0;
+            right: 0;
+            max-height: 170px;
+            width: auto;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin: 25px 0;
         }
-        table, th, td {
-            border: 1px solid black;
-        }
-        th, td {
-            padding: 8px;
+
+        th {
+            background-color: #ffee01;
+            color: rgb(41, 6, 6);
+            padding: 12px;
+            font-weight: 500;
             text-align: left;
+            font-size: 14px;
+        }
+
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #fefb21;
+            color: #424242;
+            font-size: 13px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #fcfeb1;
+        }
+
+        .numeric {
+            text-align: right;
+            font-family: 'Arial', sans-serif;
+            font-weight: 500;
+        }
+
+        .details {
+            margin-top: 30px;
+            text-align: right;
+            color: #666;
+            font-size: 12px;
+            border-top: 1px solid #e0e0e0;
+            padding-top: 15px;
+        }
+
+        @media print {
+            body {
+                padding: 20px;
+            }
+            th {
+                background-color: #1a237e !important;
+                color: white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
         }
     </style>
 </head>
-<body >
-    <div class="header" >
-        <h1>Tienda La Curacao</h1>
-        <h2>Reporte de Ventas</h2>
+<body>
+    <div class="header-container">
+        <div class="header">
+            <h1>Tienda La Curacao</h1>
+            <h2>Reporte de Ventas</h2>
+        </div>
+        <img class="logo" src="{{ public_path('vendor/adminlte/dist/img/la-curacao-final.jpg') }}" alt="Logo de la tienda">
     </div>
-
 
     <table>
         <thead>
@@ -66,20 +121,20 @@
         <tbody>
             @foreach($ventas as $venta)
                 <tr>
-                    <td>{{ $venta->id_venta }}</td>
+                    <td>{{ str_pad($venta->id_venta, 6, '0', STR_PAD_LEFT) }}</td>
                     <td>{{ $venta->cliente->nombre }}</td>
                     <td>{{ $venta->producto->nombre }}</td>
-                    <td>{{ $venta->cantidad }}</td>
-                    <td>{{ number_format($venta->total, 2) }}</td>
-                    <td>{{ \Carbon\Carbon::parse($venta->fecha)->format('Y-m-d') }}</td>
+                    <td class="numeric">{{ number_format($venta->cantidad, 0) }}</td>
+                    <td class="numeric">S/ {{ number_format($venta->total, 2) }}</td>
+                    <td>{{ \Carbon\Carbon::parse($venta->fecha)->format('d/m/Y') }}</td>
                 </tr>
             @endforeach
         </tbody>
     </table>
+
     <div class="details">
-      
         <?php date_default_timezone_set('America/Lima'); ?>
-        <p>Fecha y hora de generación: {{ \Carbon\Carbon::now()->format('Y-m-d H:i:s') }}</p>
+        <p>Reporte generado el {{ \Carbon\Carbon::now()->format('d/m/Y') }} a las {{ \Carbon\Carbon::now()->format('H:i:s') }} / Lima, Perú</p>
     </div>
 </body>
 </html>

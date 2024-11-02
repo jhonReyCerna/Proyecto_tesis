@@ -5,48 +5,106 @@
     <title>Reporte de Compras</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
             margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            flex-direction: column;
+            padding: 40px;
+            background-color: white;
         }
+
+        .header-container {
+            position: relative;
+            border-bottom: 2px solid #1a237e;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            min-height: 180px;
+        }
+
         .header {
-            text-align: center;
-            padding: 10px;
+            width: 60%;
         }
-        .header h1, .header h2 {
+
+        .header h1 {
+            color: #ffe608;
+            font-size: 24px;
             margin: 0;
         }
+
+        .header h2 {
+            color: #424242;
+            font-size: 18px;
+            margin: 5px 0 0;
+            font-weight: normal;
+        }
+
+        .logo {
+            position: absolute;
+            top: 0;
+            right: 0;
+            max-height: 170px;
+            width: auto;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin: 25px 0;
         }
-        table, th, td {
-            border: 1px solid black;
-        }
-        th, td {
-            padding: 8px;
-            text-align: left;
-        }
+
         th {
-            background-color: #f2f2f2;
+            background-color: #ffee01;
+            color: rgb(41, 6, 6);
+            padding: 12px;
+            font-weight: 500;
+            text-align: left;
+            font-size: 14px;
         }
-        .details {
-            margin-top: 10px;
+
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #fefb21;
+            color: #424242;
+            font-size: 13px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #fcfeb1;
+        }
+
+        .numeric {
             text-align: right;
-            font-size: 0.9em;
+            font-family: 'Arial', sans-serif;
+            font-weight: 500;
+        }
+
+        .details {
+            margin-top: 30px;
+            text-align: right;
+            color: #666;
+            font-size: 12px;
+            border-top: 1px solid #e0e0e0;
+            padding-top: 15px;
+        }
+
+        @media print {
+            body {
+                padding: 20px;
+            }
+            th {
+                background-color: #1a237e !important;
+                color: white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Tienda La Curacao</h1>
-        <h2>Reporte de Compras</h2>
+    <div class="header-container">
+        <div class="header">
+            <h1>Tienda La Curacao</h1>
+            <h2>Reporte de Compras</h2>
+        </div>
+        <img class="logo" src="{{ public_path('vendor/adminlte/dist/img/la-curacao-final.jpg') }}" alt="Logo de la tienda">
     </div>
 
     <table>
@@ -58,21 +116,21 @@
                 <th>Cantidad</th>
                 <th>Fecha</th>
                 <th>Almacén</th>
-                <th>Precio Unitario</th>
+                <th>Precio Unit.</th>
                 <th>Total</th>
             </tr>
         </thead>
         <tbody>
             @foreach($compras as $compra)
                 <tr>
-                    <td>{{ $compra->id_compra }}</td>
+                    <td>{{ str_pad($compra->id_compra, 6, '0', STR_PAD_LEFT) }}</td>
                     <td>{{ $compra->producto->nombre }}</td>
                     <td>{{ $compra->proveedor->nombre }}</td>
-                    <td>{{ $compra->cantidad }}</td>
-                    <td>{{ \Carbon\Carbon::parse($compra->fecha)->format('Y-m-d') }}</td>
+                    <td class="numeric">{{ number_format($compra->cantidad, 0) }}</td>
+                    <td>{{ \Carbon\Carbon::parse($compra->fecha)->format('d/m/Y') }}</td>
                     <td>{{ $compra->almacen->nombre }}</td>
-                    <td>{{ number_format($compra->precio_unitario, 2) }}</td>
-                    <td>{{ number_format($compra->total, 2) }}</td>
+                    <td class="numeric">S/ {{ number_format($compra->precio_unitario, 2) }}</td>
+                    <td class="numeric">S/ {{ number_format($compra->total, 2) }}</td>
                 </tr>
             @endforeach
         </tbody>
@@ -80,7 +138,7 @@
 
     <div class="details">
         <?php date_default_timezone_set('America/Lima'); ?>
-        <p>Fecha y hora de generación: {{ \Carbon\Carbon::now()->format('Y-m-d H:i:s') }}</p>
+        <p>Reporte generado el {{ \Carbon\Carbon::now()->format('d/m/Y') }} a las {{ \Carbon\Carbon::now()->format('H:i:s') }} / Lima, Perú</p>
     </div>
 </body>
 </html>
