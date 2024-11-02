@@ -130,6 +130,9 @@ Route::put('venta/update/{venta}', [VentaController::class, 'update'])->name('ve
 
 Route::delete('venta/destroy/{venta}', [VentaController::class, 'destroy'])->name('ventas.destroy');
 
+Route::get('ventas/reporte', [VentaController::class, 'exportPdf'])->name('ventas.reporte');
+
+
 
 
 

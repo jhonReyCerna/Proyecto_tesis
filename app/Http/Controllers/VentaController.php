@@ -5,18 +5,19 @@ namespace App\Http\Controllers;
 use App\Models\Venta;
 use App\Models\Cliente;
 use App\Models\Producto;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
 class VentaController extends Controller
 {
-    // Mostrar lista de ventas
+
     public function index()
     {
-        $ventas = Venta::paginate(10); 
+        $ventas = Venta::paginate(10);
         return view('ventas.index', compact('ventas'));
     }
 
-    // Mostrar el formulario para crear una nueva venta
+
     public function create()
     {
         $clientes = Cliente::all();
@@ -24,7 +25,7 @@ class VentaController extends Controller
         return view('ventas.create', compact('clientes', 'productos'));
     }
 
-    // Almacenar una nueva venta en la base de datos
+
     public function store(Request $request)
 {
     // Validar los datos de la solicitud
@@ -51,13 +52,13 @@ class VentaController extends Controller
     $venta->descuento = $request->descuento ?? 0; // Si no hay descuento, asignar 0
     $venta->total = $request->total;
     $venta->metodo_pago = $request->metodo_pago;
-    
+
     // Guardar la venta
     $venta->save();
 
     // Actualizar el stock del producto
     $producto = Producto::find($request->producto_id);
-    
+
     // Verificar que haya suficiente stock
     if ($producto->stock >= $request->cantidad) {
         $producto->stock -= $request->cantidad; // Reducir el stock por la cantidad vendida
@@ -128,5 +129,17 @@ class VentaController extends Controller
     {
         $venta->delete();
         return redirect()->route('ventas.index')->with('success', 'Venta eliminada exitosamente.');
+    }
+
+    public function exportPdf()
+    {
+        // Obtener todas las ventas junto con los datos del cliente y producto
+        $ventas = Venta::with('cliente', 'producto')->get();
+
+        // Cargar la vista del reporte y pasar los datos de las ventas
+        $pdf = Pdf::loadView('ventas.reporte', compact('ventas'));
+
+        // Descargar el archivo PDF con un nombre específico
+        return $pdf->download('reporte_ventas.pdf');
     }
 }
