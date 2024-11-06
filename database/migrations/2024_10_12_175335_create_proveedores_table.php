@@ -34,18 +34,17 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Desactivamos las comprobaciones de claves foráneas
+
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
-        // Eliminar registros de las tablas dependientes antes de eliminar la tabla proveedores
-        // Asegúrate de ajustar las tablas y las columnas que dependan de proveedores
-        DB::table('productos')->whereNotNull('id_proveedor')->delete(); // Elimina productos que refieren a proveedores
-        DB::table('ventas')->whereNotNull('id_proveedor')->delete(); // Elimina ventas que refieren a proveedores
 
-        // Eliminar la tabla proveedores
+        DB::table('productos')->whereNotNull('id_proveedor')->delete();
+        DB::table('ventas')->whereNotNull('id_proveedor')->delete();
+
+
         Schema::dropIfExists('proveedores');
 
-        // Volver a habilitar las comprobaciones de claves foráneas
+        
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
     }
 };

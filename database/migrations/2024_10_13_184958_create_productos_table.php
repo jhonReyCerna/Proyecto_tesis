@@ -9,7 +9,7 @@ class CreateProductosTable extends Migration
 {
     public function up(): void
     {
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;'); // Desactiva las comprobaciones de claves foráneas
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;'); 
 
         Schema::create('productos', function (Blueprint $table) {
             $table->id('id_producto');
@@ -26,15 +26,15 @@ class CreateProductosTable extends Migration
             $table->foreign('id_almacen')->references('id_almacen')->on('almacenes')->onDelete('cascade');
         });
 
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;'); // Vuelve a activar las comprobaciones de claves foráneas
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
     }
 
     public function down(): void
     {
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;'); // Desactiva las comprobaciones de claves foráneas
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
         Schema::dropIfExists('productos');
 
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;'); // Vuelve a activar las comprobaciones de claves foráneas
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
     }
 }

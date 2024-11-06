@@ -22,7 +22,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;'); // Vuelve a activar las comprobaciones de claves foráneas
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
     }
 
     /**
@@ -30,10 +30,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;'); // Desactiva las comprobaciones de claves foráneas
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
-        Schema::dropIfExists('almacenes'); // Elimina la tabla 'almacenes'
+        Schema::dropIfExists('almacenes');
 
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;'); // Vuelve a activar las comprobaciones de claves foráneas
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;'); 
     }
 };

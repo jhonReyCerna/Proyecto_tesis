@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('producto_id');
             $table->unsignedBigInteger('cliente_id');
             $table->integer('cantidad');
-            $table->date('fecha');  // O considera 'dateTime' si necesitas la hora
+            $table->date('fecha');
             $table->decimal('subtotal', 10, 2);
             $table->decimal('impuesto', 10, 2);
             $table->decimal('descuento', 10, 2)->default(0);
@@ -25,11 +25,11 @@ return new class extends Migration
             $table->enum('estado', ['pendiente', 'completado', 'cancelado'])->default('pendiente');
             $table->timestamps();
 
-            // Claves foráneas
+
             $table->foreign('producto_id')->references('id_producto')->on('productos')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('cliente_id')->references('id_cliente')->on('clientes')->onDelete('cascade')->onUpdate('cascade');
 
-            // Índices para mejorar el rendimiento
+      
             $table->index('producto_id');
             $table->index('cliente_id');
         });
