@@ -332,13 +332,13 @@ return [
             'text' => 'Proveedores',
             'route' => 'proveedores.index',
             'icon' => 'fas fa-user-tie',
- 
+
         ],
         [
-            'text' => 'Categorias',
+            'text' => 'Categorías',
             'route' => 'categorias.index',
             'icon' => 'fas fa-weight-hanging',
-      
+
         ],
         [
             'text' => 'Clientes',
@@ -365,7 +365,7 @@ return [
             'route' => 'ventas.index',
             'icon' => 'fas fa-donate',
         ],
-        
+
     ],
 
     /*
