@@ -29,7 +29,7 @@ return new class extends Migration
             $table->foreign('producto_id')->references('id_producto')->on('productos')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('cliente_id')->references('id_cliente')->on('clientes')->onDelete('cascade')->onUpdate('cascade');
 
-      
+
             $table->index('producto_id');
             $table->index('cliente_id');
         });
