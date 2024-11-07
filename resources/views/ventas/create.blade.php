@@ -45,7 +45,7 @@
         </div>
 
         <div class="form-row">
-            <div class="form-group col-md-6">
+            <div class="form-group col-md-2"  >
                 <label for="producto_id">Productos</label>
                 <select name="producto_id[]" id="producto_id" class="form-control" multiple>
                     @foreach($productos as $producto)
@@ -53,10 +53,10 @@
                     @endforeach
                 </select>
             </div>
-            <div class="form-group col-md-2">
+            <div class="form-group col-2 ">
                 <label for="cantidad">Cantidad</label>
                 <input type="number" name="cantidad" class="form-control" required placeholder="0">
-                <button type="button" class="btn btn-primary mt-2" id="agregarBtn" >Agregar</button>
+                <button type="button" class="btn btn-primary mt-2" id="agregarBtn">Agregar</button>
             </div>
         </div>
 
