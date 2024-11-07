@@ -34,7 +34,7 @@
                 <div class="input-group">
                     <input type="text" id="dni_cliente" class="form-control" placeholder="Ingrese DNI">
                     <div class="input-group-append">
-                        <button type="button" class="btn btn-secondary" id="buscarDniBtn">Buscar</button>
+                        <button type="button" class="btn btn-success" id="buscarDniBtn">Buscar</button>
                     </div>
                 </div>
             </div>
