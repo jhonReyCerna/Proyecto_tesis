@@ -98,7 +98,7 @@ class ClienteController extends Controller
 
     public function buscarPorDni($dni)
     {
-        // Buscar el cliente por DNI
+        
         $cliente = Cliente::where('dni', $dni)->first();
 
         if ($cliente) {
