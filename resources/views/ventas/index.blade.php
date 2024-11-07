@@ -31,7 +31,6 @@
                     <tr>
                         <th>ID</th>
                         <th>Cliente</th>
-                        <th>Producto</th>
                         <th>Cantidad</th>
                         <th>Total</th>
                         <th>Fecha</th>
