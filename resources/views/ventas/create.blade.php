@@ -19,32 +19,45 @@
 
     <form id="ventaForm" action="{{ route('ventas.store') }}" method="POST">
         @csrf
-        <div class="form-group">
-            <label for="producto_id">Producto</label>
-            <select name="producto_id" id="producto_id" class="form-control" onchange="calcularSubtotal()">
-                @foreach($productos as $producto)
-                    <option value="{{ $producto->id_producto }}" data-precio="{{ $producto->precio }}">{{ $producto->nombre }}</option>
-                @endforeach
-            </select>
+
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <label for="cliente_id">Cliente</label>
+                <select name="cliente_id" id="cliente_id" class="form-control">
+                    @foreach($clientes as $cliente)
+                        <option value="{{ $cliente->id_cliente }}">{{ $cliente->nombre }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="form-group col-md-4">
+                <label for="dni_cliente">Buscar Cliente por DNI</label>
+                <div class="input-group">
+                    <input type="text" id="dni_cliente" class="form-control" placeholder="Ingrese DNI">
+                    <div class="input-group-append">
+                        <button type="button" class="btn btn-secondary" id="buscarDniBtn">Buscar</button>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group col-md-4">
+                <label for="fecha">Fecha</label>
+                <input type="date" name="fecha" class="form-control" required>
+            </div>
         </div>
 
-        <div class="form-group">
-            <label for="cliente_id">Cliente</label>
-            <select name="cliente_id" id="cliente_id" class="form-control">
-                @foreach($clientes as $cliente)
-                    <option value="{{ $cliente->id_cliente }}">{{ $cliente->nombre }}</option>
-                @endforeach
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label for="cantidad">Cantidad</label>
-            <input type="number" name="cantidad" class="form-control" id="cantidad" required min="1" oninput="calcularSubtotal()">
-        </div>
-
-        <div class="form-group">
-            <label for="fecha">Fecha</label>
-            <input type="date" name="fecha" class="form-control" required>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label for="producto_id">Productos</label>
+                <select name="producto_id[]" id="producto_id" class="form-control" multiple>
+                    @foreach($productos as $producto)
+                        <option value="{{ $producto->id_producto }}" data-precio="{{ $producto->precio }}">{{ $producto->nombre }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="form-group col-md-6">
+                <label for="cantidad">Cantidad por producto</label>
+                <input type="cantidad" name="cantidad" class="form-control" required>
+                <button type="button" class="btn btn-primary mt-2" id="agregarBtn">Agregar</button>
+            </div>
         </div>
 
         <div class="form-group">
@@ -102,25 +115,52 @@
             });
         });
 
+        // Mostrar cantidad de productos seleccionados
+        document.getElementById('producto_id').addEventListener('change', function() {
+            let cantidadContainer = document.getElementById('cantidadContainer');
+            cantidadContainer.innerHTML = '';  // Limpiar el contenedor de cantidades
+            let productosSeleccionados = this.selectedOptions;
+
+            Array.from(productosSeleccionados).forEach(function(producto) {
+                let cantidadInput = document.createElement('input');
+                cantidadInput.type = 'number';
+                cantidadInput.name = 'cantidad[' + producto.value + ']'; // Asociar cada cantidad con el producto correspondiente
+                cantidadInput.className = 'form-control';
+                cantidadInput.placeholder = 'Cantidad de ' + producto.text;
+                cantidadInput.min = 1;
+                cantidadInput.required = true;
+                cantidadInput.oninput = calcularSubtotal; // Llamar a la función para recalcular
+                cantidadContainer.appendChild(cantidadInput);
+                cantidadContainer.appendChild(document.createElement('br'));  // Salto de línea
+            });
+        });
+
         // Cálculos de subtotal, impuesto y total
         function calcularSubtotal() {
             const productoSelect = document.getElementById('producto_id');
-            const cantidadInput = document.getElementById('cantidad');
+            const cantidadInputs = document.querySelectorAll('#cantidadContainer input');
             const subtotalInput = document.getElementById('subtotal');
             const impuestoInput = document.getElementById('impuesto');
             const totalInput = document.getElementById('total');
 
-            const selectedOption = productoSelect.options[productoSelect.selectedIndex];
-            const precio = parseFloat(selectedOption.getAttribute('data-precio'));
-            const cantidad = parseInt(cantidadInput.value) || 0;
+            let subtotal = 0;
 
-            const subtotal = precio * cantidad;
+            // Recorre cada cantidad y calcula el subtotal
+            Array.from(cantidadInputs).forEach(function(cantidadInput) {
+                const cantidad = parseInt(cantidadInput.value) || 0;
+                const productoId = cantidadInput.name.replace('cantidad[', '').replace(']', '');
+                const producto = productoSelect.querySelector(`option[value="${productoId}"]`);
+                const precio = parseFloat(producto.getAttribute('data-precio')) || 0;
+
+                subtotal += precio * cantidad;
+            });
+
             subtotalInput.value = subtotal.toFixed(2);
 
             const impuesto = subtotal * 0.18;
             impuestoInput.value = impuesto.toFixed(2);
 
-            calcularTotal(); 
+            calcularTotal();
         }
 
         function calcularTotal() {

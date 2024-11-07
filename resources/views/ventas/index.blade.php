@@ -19,7 +19,7 @@
         </div>
     </form>
 
-    <a href="{{ route('ventas.create') }}" class="btn btn-primary mb-3">Agregar Venta</a>
+    <a href="{{ route('ventas.create') }}" class="btn btn-primary mb-3">Registrar Venta</a>
 
     <a href="{{ route('ventas.reporte') }}" class="btn btn-success mb-3"> <i class="fas fa-file-pdf"></i>  Generar Reporte PDF</a>
 
