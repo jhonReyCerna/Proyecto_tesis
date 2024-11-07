@@ -120,16 +120,107 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        let productoIndex = 1;
+        document.getElementById('buscarDniBtn').addEventListener('click', function() {
+            const dni = document.getElementById('dni_cliente').value;
 
-        document.getElementById('producto_id').addEventListener('change', actualizarTablaProductos);
+            if (dni) {
+                // Realizar la solicitud AJAX para buscar al cliente por DNI
+                fetch(`/cliente/buscar/${dni}`)
+    .then(response => response.json())
+    .then(data => {
+        console.log(data); // Verifica lo que está llegando del backend
+        if (data.status === 'success') {
+            document.getElementById('cliente_id').value = data.cliente.id_cliente;
+            Swal.fire({
+                icon: 'success',
+                title: 'Cliente encontrado',
+                text: `Cliente: ${data.cliente.nombre}`
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.message
+            });
+        }
+    })
+    .catch(error => {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Hubo un problema al buscar el cliente'
+        });
+    });
+            } else {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Advertencia',
+                    text: 'Por favor ingrese un DNI para buscar'
+                });
+            }
+        });
 
-        function actualizarTablaProductos() {
-            // Código de lógica para actualizar la tabla de productos seleccionados
+        document.getElementById('buscarDniBtn').addEventListener('click', function() {
+    const dni = document.getElementById('dni_cliente').value.trim();
+
+    if (dni) {
+        // Realizar la solicitud AJAX para buscar al cliente por DNI
+        fetch(`/cliente/buscar/${dni}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Si se encuentra el cliente, actualizar el campo 'cliente_id' con el nombre del cliente
+                    document.getElementById('cliente_id').value = data.cliente.id_cliente;
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Cliente encontrado',
+                        text: `Cliente: ${data.cliente.nombre}`
+                    });
+                } else {
+                    // Si no se encuentra el cliente, mostrar un mensaje de error
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message
+                    });
+                }
+            })
+            .catch(error => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Hubo un problema al buscar el cliente'
+                });
+            });
+    } else {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Advertencia',
+            text: 'Por favor ingrese un DNI para buscar'
+        });
+    }
+});
+
+        function eliminarProducto(button) {
+            const row = button.closest('tr');
+            row.remove();
+            calcularSubtotal();
         }
 
         function calcularSubtotal() {
-            // Código de lógica para calcular el subtotal
+            let subtotal = 0;
+            const rows = document.querySelectorAll('#detalleVentaTable tr');
+            rows.forEach(row => {
+                const subtotalCell = row.cells[4];
+                subtotal += parseFloat(subtotalCell.innerText) || 0;
+            });
+
+            // Actualizar el subtotal
+            document.getElementById('subtotal').value = subtotal.toFixed(2);
+            // Calcular impuesto y total
+            const impuesto = subtotal * 0.18;
+            document.getElementById('impuesto').value = impuesto.toFixed(2);
+            calcularTotal();
         }
 
         function calcularTotal() {

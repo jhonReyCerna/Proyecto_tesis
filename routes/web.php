@@ -66,6 +66,9 @@ Route::put('cliente/update/{cliente}', [ClienteController::class, 'update'])->na
 
 Route::delete('cliente/destroy/{cliente}', [ClienteController::class, 'destroy'])->name('clientes.destroy');
 
+Route::get('cliente/buscar/{dni}', [ClienteController::class, 'buscarPorDni'])->name('clientes.buscarPorDni');
+
+
 //--------------------------------------------------------------------------------------------------------------------------
 
 Route::get('almacen/index', [AlmacenController::class, 'index'])->name('almacenes.index');
