@@ -90,7 +90,58 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Campos adicionales para resumen de la venta -->
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <!-- SubTotal -->
+                <div class="col-md-3">
+                    <label for="subtotal" class="form-label">Subtotal</label>
+                    <input type="text" class="form-control" id="subtotal" readonly>
+                </div>
+
+                <!-- Descuento -->
+                <div class="col-md-3">
+                    <label for="descuento" class="form-label">Descuento (%)</label>
+                    <input type="number" class="form-control" id="descuento" value="0" min="0" max="100">
+                </div>
+            </div>
+
+            <div class="row mt-3">
+                <!-- IGV -->
+                <div class="col-md-3">
+                    <label for="igv" class="form-label">IGV (18%)</label>
+                    <input type="text" class="form-control" id="igv" readonly>
+                </div>
+
+                <!-- Total a Pagar -->
+
+
+                <div class="col-md-3">
+                    <label for="efectivo" class="form-label">Efectivo</label>
+                    <input type="number" class="form-control" id="efectivo">
+                </div>
+            </div>
+
+            <div class="row mt-3">
+                <!-- Efectivo -->
+                <div class="col-md-3">
+                    <label for="cambio" class="form-label">Cambio</label>
+                    <input type="text" class="form-control" id="cambio" readonly>
+                </div>
+
+                <!-- Cambio -->
+
+
+                <div class="col-md-3">
+                    <label for="total_pagar" class="form-label">Total a Pagar</label>
+                    <input type="text" class="form-control" id="total_pagar" readonly>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <script>
         // Variables globales para cálculos
         let totalPagar = 0;
@@ -120,6 +171,7 @@
             // Calcular subtotal
             const subtotal = cantidad * precioUnitario;
             totalPagar += subtotal;
+            actualizarTotales();
 
             // Añadir fila a la tabla
             const ventasTable = document.getElementById('ventas-table').getElementsByTagName('tbody')[0];
@@ -145,55 +197,32 @@
             newRow.querySelector('.delete-row-btn').addEventListener('click', function() {
                 totalPagar -= subtotal;
                 this.closest('tr').remove();
+                actualizarTotales();
             });
         });
 
-        // Función de búsqueda para DNI (esto es opcional, ya que no afecta la tabla)
-        document.getElementById('buscarDniBtn').addEventListener('click', function() {
-            const dniInput = document.getElementById('dni_search').value.trim();
-            const clienteSelect = document.getElementById('cliente_id');
+        // Actualizar totales y calcular IGV, descuentos, y total a pagar
+        function actualizarTotales() {
+            const subtotal = totalPagar;
+            const descuentoInput = document.getElementById('descuento');
+            const descuento = (subtotal * parseFloat(descuentoInput.value || 0)) / 100;
+            const igv = (subtotal - descuento) * 0.18;
+            const totalConIgv = subtotal - descuento + igv;
 
-            // Verificar si el campo de búsqueda está vacío
-            if (dniInput === '') {
-                Swal.fire({
-                    title: 'Error',
-                    text: 'Por favor, ingresa un DNI para buscar.',
-                    icon: 'warning',
-                    confirmButtonText: 'Aceptar'
-                });
-                return;
-            }
+            document.getElementById('subtotal').value = subtotal.toFixed(2);
+            document.getElementById('igv').value = igv.toFixed(2);
+            document.getElementById('total_pagar').value = totalConIgv.toFixed(2);
+        }
 
-            // Recorrer las opciones del select para encontrar el DNI
-            let clienteEncontrado = false;
-            for (let i = 0; i < clienteSelect.options.length; i++) {
-                const option = clienteSelect.options[i];
-                const dni = option.getAttribute('data-dni');
+        // Escuchar cambios en el campo de descuento
+        document.getElementById('descuento').addEventListener('input', actualizarTotales);
 
-                if (dni === dniInput) {
-                    clienteSelect.value = option.value; // Seleccionar el cliente
-                    clienteEncontrado = true;
-
-                    // Mostrar alerta de cliente encontrado
-                    Swal.fire({
-                        title: 'Cliente Encontrado',
-                        text: `El cliente ${option.text} ha sido seleccionado.`,
-                        icon: 'success',
-                        confirmButtonText: 'Aceptar'
-                    });
-                    break;
-                }
-            }
-
-            // Mostrar alerta si no se encontró el cliente
-            if (!clienteEncontrado) {
-                Swal.fire({
-                    title: 'Cliente No Encontrado',
-                    text: 'No se encontró un cliente con el DNI proporcionado.',
-                    icon: 'error',
-                    confirmButtonText: 'Aceptar'
-                });
-            }
+        // Calcular cambio al ingresar efectivo
+        document.getElementById('efectivo').addEventListener('input', function() {
+            const efectivo = parseFloat(this.value) || 0;
+            const totalPagar = parseFloat(document.getElementById('total_pagar').value) || 0;
+            const cambio = efectivo - totalPagar;
+            document.getElementById('cambio').value = cambio.toFixed(2);
         });
     </script>
 @stop
