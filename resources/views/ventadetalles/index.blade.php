@@ -141,8 +141,71 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
+
+document.getElementById('buscarDniBtn').addEventListener('click', function() {
+    const dniInput = document.getElementById('dni_search').value;
+
+    if (!dniInput) {
+        Swal.fire({
+            title: 'Error',
+            text: 'Por favor, ingresa un DNI para buscar.',
+            icon: 'warning',
+            confirmButtonText: 'Aceptar'
+        });
+        return;
+    }
+
+    // Mostrar un alert animado antes de proceder con la búsqueda
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: "¿Deseas buscar el cliente por este DNI?",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, buscar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Lógica para buscar el cliente por el DNI
+            // Por ejemplo, hacer una petición AJAX o realizar la búsqueda directamente
+
+            // Ejemplo de búsqueda (esto debería ser adaptado a tu lógica de búsqueda)
+            const clienteSelect = document.getElementById('cliente_id');
+            let found = false;
+
+            // Buscar el cliente en la lista de clientes
+            for (let i = 0; i < clienteSelect.options.length; i++) {
+                if (clienteSelect.options[i].dataset.dni === dniInput) {
+                    clienteSelect.value = clienteSelect.options[i].value;  // Seleccionar el cliente
+                    found = true;
+                    break;
+                }
+            }
+
+            // Mostrar mensaje dependiendo de si se encontró o no el cliente
+            if (found) {
+                Swal.fire({
+                    title: 'Cliente encontrado',
+                    text: 'Se ha encontrado el cliente con el DNI proporcionado.',
+                    icon: 'success',
+                    confirmButtonText: 'Aceptar'
+                });
+            } else {
+                Swal.fire({
+                    title: 'Cliente no encontrado',
+                    text: 'No se ha encontrado un cliente con ese DNI.',
+                    icon: 'error',
+                    confirmButtonText: 'Aceptar'
+                });
+            }
+        }
+    });
+});
+
        // Variables globales
 let totalPagar = 0;  // Total acumulado de la venta
 let numero = 1;  // Número de productos en la lista
