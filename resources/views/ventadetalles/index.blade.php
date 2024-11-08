@@ -57,7 +57,7 @@
 
                     <div class="col-md-4">
                         <label for="cantidad_productos" class="form-label">Cantidad de productos</label>
-                        <input type="number" class="form-control" id="cantidad_productos" name="cantidad_productos" required>
+                        <input type="number" class="form-control" id="cantidad_productos" name="cantidad_productos" min="1" oninput="this.value = Math.abs(this.value)" required placeholder="0">
                     </div>
 
                     <div class="col-md-4 d-flex">
@@ -143,86 +143,104 @@
 
 
     <script>
-        // Variables globales para cálculos
-        let totalPagar = 0;
-        let numero = 1;
+       // Variables globales
+let totalPagar = 0;  // Total acumulado de la venta
+let numero = 1;  // Número de productos en la lista
 
-        // Función para añadir productos a la tabla
-        document.getElementById('registrarBtn').addEventListener('click', function() {
-            const productoSelect = document.getElementById('producto_id');
-            const cantidadInput = document.getElementById('cantidad_productos');
+// Función para añadir productos a la tabla
+document.getElementById('registrarBtn').addEventListener('click', function() {
+    const productoSelect = document.getElementById('producto_id');
+    const cantidadInput = document.getElementById('cantidad_productos');
 
-            const productoId = productoSelect.value;
-            const productoNombre = productoSelect.options[productoSelect.selectedIndex].text;
-            const cantidad = parseInt(cantidadInput.value);
-            const precioUnitario = parseFloat(productoSelect.options[productoSelect.selectedIndex].getAttribute('data-precio'));
+    const productoId = productoSelect.value;
+    const productoNombre = productoSelect.options[productoSelect.selectedIndex].text;
+    const cantidad = parseInt(cantidadInput.value);
+    const precioUnitario = parseFloat(productoSelect.options[productoSelect.selectedIndex].getAttribute('data-precio'));
 
-            // Validar campos
-            if (!productoId || !cantidad || isNaN(precioUnitario)) {
-                Swal.fire({
-                    title: 'Error',
-                    text: 'Por favor, selecciona un producto y asegúrate de ingresar una cantidad válida.',
-                    icon: 'warning',
-                    confirmButtonText: 'Aceptar'
-                });
-                return;
-            }
-
-            // Calcular subtotal
-            const subtotal = cantidad * precioUnitario;
-            totalPagar += subtotal;
-            actualizarTotales();
-
-            // Añadir fila a la tabla
-            const ventasTable = document.getElementById('ventas-table').getElementsByTagName('tbody')[0];
-            const newRow = ventasTable.insertRow();
-
-            newRow.innerHTML = `
-                <td>${numero++}</td>
-                <td>${productoNombre}</td>
-                <td>${cantidad}</td>
-                <td>${precioUnitario.toFixed(2)}</td>
-                <td>${subtotal.toFixed(2)}</td>
-                <td>${totalPagar.toFixed(2)}</td>
-                <td>
-                    <button type="button" class="btn btn-danger btn-sm delete-row-btn">Eliminar</button>
-                </td>
-            `;
-
-            // Limpiar campos
-            productoSelect.value = '';
-            cantidadInput.value = '';
-
-            // Añadir evento para eliminar fila
-            newRow.querySelector('.delete-row-btn').addEventListener('click', function() {
-                totalPagar -= subtotal;
-                this.closest('tr').remove();
-                actualizarTotales();
-            });
+    if (!productoId || !cantidad || isNaN(precioUnitario)) {
+        Swal.fire({
+            title: 'Error',
+            text: 'Por favor, selecciona un producto y asegúrate de ingresar una cantidad válida.',
+            icon: 'warning',
+            confirmButtonText: 'Aceptar'
         });
+        return;
+    }
 
-        // Actualizar totales y calcular IGV, descuentos, y total a pagar
-        function actualizarTotales() {
-            const subtotal = totalPagar;
-            const descuentoInput = document.getElementById('descuento');
-            const descuento = (subtotal * parseFloat(descuentoInput.value || 0)) / 100;
-            const igv = (subtotal - descuento) * 0.18;
-            const totalConIgv = subtotal - descuento + igv;
+    const subtotal = cantidad * precioUnitario;
 
-            document.getElementById('subtotal').value = subtotal.toFixed(2);
-            document.getElementById('igv').value = igv.toFixed(2);
-            document.getElementById('total_pagar').value = totalConIgv.toFixed(2);
-        }
+    // Agregar fila a la tabla sin afectar el precio total global
+    const ventasTable = document.getElementById('ventas-table').getElementsByTagName('tbody')[0];
+    const newRow = ventasTable.insertRow();
+    newRow.innerHTML = `
+        <td>${numero++}</td>
+        <td>${productoNombre}</td>
+        <td>${cantidad}</td>
+        <td>${precioUnitario.toFixed(2)}</td>
+        <td>${subtotal.toFixed(2)}</td>
+        <td>${subtotal.toFixed(2)}</td> <!-- Total a pagar igual al subtotal -->
+        <td>
+            <button type="button" class="btn btn-danger btn-sm delete-row-btn">Eliminar</button>
+        </td>
+    `;
 
-        // Escuchar cambios en el campo de descuento
-        document.getElementById('descuento').addEventListener('input', actualizarTotales);
+    // Limpiar campos de entrada
+    productoSelect.value = '';
+    cantidadInput.value = '';
 
-        // Calcular cambio al ingresar efectivo
-        document.getElementById('efectivo').addEventListener('input', function() {
-            const efectivo = parseFloat(this.value) || 0;
-            const totalPagar = parseFloat(document.getElementById('total_pagar').value) || 0;
-            const cambio = efectivo - totalPagar;
-            document.getElementById('cambio').value = cambio.toFixed(2);
-        });
+    // Función para eliminar filas
+    newRow.querySelector('.delete-row-btn').addEventListener('click', function() {
+        this.closest('tr').remove();
+        actualizarTotales();  // Recalcular los totales
+    });
+
+    // Actualizar los totales en la interfaz
+    actualizarTotales();
+});
+
+// Función para actualizar los totales
+function actualizarTotales() {
+    const ventasTable = document.getElementById('ventas-table').getElementsByTagName('tbody')[0];
+    const rows = ventasTable.getElementsByTagName('tr');
+
+    let subtotal = 0;
+
+    // Sumar todos los subtotales de la tabla
+    for (let i = 0; i < rows.length; i++) {
+        const subtotalCell = rows[i].cells[4].innerText; // Columna de subtotal
+        subtotal += parseFloat(subtotalCell);
+    }
+
+    const descuento = parseFloat(document.getElementById('descuento').value || 0);
+    const totalConDescuento = subtotal - descuento;  // Aplicar descuento
+
+    const igv = totalConDescuento * 0.18;  // Calcular IGV (18%)
+    const totalFinal = totalConDescuento + igv;  // Total final a pagar con IGV
+
+    // Actualizar los campos de la interfaz
+    document.getElementById('subtotal').value = subtotal.toFixed(2);
+    document.getElementById('igv').value = igv.toFixed(2);
+    document.getElementById('total_pagar').value = totalFinal.toFixed(2);
+}
+
+// Evento para recalcular totales cuando se cambie el descuento
+document.getElementById('descuento').addEventListener('input', function() {
+    const totalOriginal = 1000; // Este es el total original antes de aplicar el descuento (puedes cambiarlo según tu lógica)
+    const descuento = parseFloat(document.getElementById('descuento').value || 0);
+
+    // Calcular el total a pagar con el descuento
+    const totalConDescuento = totalOriginal - (totalOriginal * (descuento / 100));
+
+    // Actualizar el campo "Total a Pagar"
+    document.getElementById('total_pagar').value = totalConDescuento.toFixed(2);
+});
+
+// Evento para calcular el cambio al ingresar efectivo
+document.getElementById('efectivo').addEventListener('input', function() {
+    const efectivo = parseFloat(this.value) || 0;
+    const totalPagar = parseFloat(document.getElementById('total_pagar').value) || 0;
+    const cambio = efectivo - totalPagar;  // Calcular el cambio
+    document.getElementById('cambio').value = cambio.toFixed(2);  // Mostrar cambio
+});
     </script>
 @stop
