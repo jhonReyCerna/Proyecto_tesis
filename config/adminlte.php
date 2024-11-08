@@ -361,9 +361,21 @@ return [
             'icon' => 'fab fa-shopify',
         ],
         [
-            'text' => 'Ventas',
-            'route' => 'ventas.index',
+            'text' => 'Facturar',
+            'route' => '',
             'icon' => 'fas fa-donate',
+            'submenu' => [
+                [
+                    'text' => 'Nueva Venta',
+                    'route' => 'ventadetalles.index',
+                    'icon' => 'fas fa-cogs',
+                ],
+                [
+                    'text' => 'Gestionar Ventas',
+                    'route' => 'gestionarventas.index',
+                    'icon' => 'fas fa-chart-line',
+                ],
+            ],
         ],
 
     ],

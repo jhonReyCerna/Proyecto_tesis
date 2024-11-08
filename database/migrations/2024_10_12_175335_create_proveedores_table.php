@@ -39,12 +39,12 @@ return new class extends Migration
 
 
         DB::table('productos')->whereNotNull('id_proveedor')->delete();
-        DB::table('ventas')->whereNotNull('id_proveedor')->delete();
+
 
 
         Schema::dropIfExists('proveedores');
 
-        
+
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
     }
 };
