@@ -13,7 +13,7 @@
         </div>
     @endif
 
-    <form action="" method="POST" id="clienteForm">
+    <form action="" method="POST" id="clienteForm" onsubmit="return false;">
         @csrf
         <div class="card">
             <div class="card-body">
@@ -37,7 +37,6 @@
                         </div>
                     </div>
 
-
                     <!-- Campo Fecha -->
                     <div class="col-md-4">
                         <label for="fecha_search" class="form-label">Buscar por Fecha</label>
@@ -51,7 +50,7 @@
                         <select name="producto_id" id="producto_id" class="form-control" required>
                             <option value="">Seleccionar Producto</option>
                             @foreach ($productos as $producto)
-                                <option value="{{ $producto->id_producto }}">{{ $producto->nombre }}</option>
+                                <option value="{{ $producto->id_producto }}" data-precio="{{ $producto->precio }}">{{ $producto->nombre }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -62,10 +61,12 @@
                     </div>
 
                     <div class="col-md-4 d-flex">
-                        <button type="button" class="btn btn-primary ms-2" id="registrarBtn">Agregar</button>
+                        <button type="button" class="btn btn-primary ms-2" id="registrarBtn">Añadir</button>
                     </div>
                 </div>
 
+            </div>
+        </div>
     </form>
 
     <div class="card">
@@ -73,119 +74,126 @@
             <table class="table table-bordered table-striped" id="ventas-table">
                 <thead>
                     <tr>
-                        <th>ID Venta</th>
-                        <th>Cliente</th>
+                        <th>N°</th>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Precio Unitario</th>
+                        <th>Subtotal</th>
                         <th>Total a Pagar</th>
-                        <th>Fecha</th>
-                        <th>Estado</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($ventas as $venta)
-                        <tr>
-                            <td>{{ $venta->id_venta }}</td>
-                            <td>{{ $venta->cliente->nombre }}</td>
-                            <td>{{ number_format($venta->totalPagar, 2) }}</td>
-                            <td>{{ \Carbon\Carbon::parse($venta->fecha)->format('Y-m-d') }}</td>
-                            <td>
-                                @if($venta->estado == 'pendiente')
-                                    <span class="badge bg-warning">Pendiente</span>
-                                @elseif($venta->estado == 'pagado')
-                                    <span class="badge bg-success">Pagado</span>
-                                @else
-                                    {{ ucfirst($venta->estado) }}
-                                @endif
-                            </td>
-                            <td>
-                                <a href="{{ route('gestionarventas.show', ['venta' => $venta->id_venta]) }}" class="btn btn-info btn-sm">Ver</a>
-                                <a href="{{ route('gestionarventas.edit', ['venta' => $venta->id_venta]) }}" class="btn btn-warning btn-sm">Editar</a>
-                                <form action="{{ route('gestionarventas.destroy', ['venta' => $venta->id_venta]) }}" method="POST" style="display:inline;" class="delete-form">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="button" class="btn btn-danger btn-sm delete-btn">Eliminar</button>
-                                </form>
-                            </td>
-                        </tr>
-                    @endforeach
+                    <!-- Las filas de la tabla se añadirán aquí dinámicamente -->
                 </tbody>
             </table>
-
-            <div class="d-flex justify-content-center">
-                {{ $ventas->links() }}
-            </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // Confirmación para eliminar una venta
-        document.querySelectorAll('.delete-btn').forEach(function(button) {
-                button.addEventListener('click', function() {
-                    const form = this.closest('.delete-form');
-                    Swal.fire({
-                        title: '¿Estás seguro?',
-                        text: "¿Deseas eliminar esta venta?",
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#d33',
-                        cancelButtonColor: '#3085d6',
-                        confirmButtonText: 'Sí, eliminar',
-                        cancelButtonText: 'Cancelar'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            form.submit();
-                        }
-                    });
+        // Variables globales para cálculos
+        let totalPagar = 0;
+        let numero = 1;
+
+        // Función para añadir productos a la tabla
+        document.getElementById('registrarBtn').addEventListener('click', function() {
+            const productoSelect = document.getElementById('producto_id');
+            const cantidadInput = document.getElementById('cantidad_productos');
+
+            const productoId = productoSelect.value;
+            const productoNombre = productoSelect.options[productoSelect.selectedIndex].text;
+            const cantidad = parseInt(cantidadInput.value);
+            const precioUnitario = parseFloat(productoSelect.options[productoSelect.selectedIndex].getAttribute('data-precio'));
+
+            // Validar campos
+            if (!productoId || !cantidad || isNaN(precioUnitario)) {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Por favor, selecciona un producto y asegúrate de ingresar una cantidad válida.',
+                    icon: 'warning',
+                    confirmButtonText: 'Aceptar'
                 });
+                return;
+            }
+
+            // Calcular subtotal
+            const subtotal = cantidad * precioUnitario;
+            totalPagar += subtotal;
+
+            // Añadir fila a la tabla
+            const ventasTable = document.getElementById('ventas-table').getElementsByTagName('tbody')[0];
+            const newRow = ventasTable.insertRow();
+
+            newRow.innerHTML = `
+                <td>${numero++}</td>
+                <td>${productoNombre}</td>
+                <td>${cantidad}</td>
+                <td>${precioUnitario.toFixed(2)}</td>
+                <td>${subtotal.toFixed(2)}</td>
+                <td>${totalPagar.toFixed(2)}</td>
+                <td>
+                    <button type="button" class="btn btn-danger btn-sm delete-row-btn">Eliminar</button>
+                </td>
+            `;
+
+            // Limpiar campos
+            productoSelect.value = '';
+            cantidadInput.value = '';
+
+            // Añadir evento para eliminar fila
+            newRow.querySelector('.delete-row-btn').addEventListener('click', function() {
+                totalPagar -= subtotal;
+                this.closest('tr').remove();
             });
-
-            // Función de búsqueda para DNI
-            document.getElementById('buscarDniBtn').addEventListener('click', function() {
-    const dniInput = document.getElementById('dni_search').value.trim();
-    const clienteSelect = document.getElementById('cliente_id');
-
-    // Verificar si el campo de búsqueda está vacío
-    if (dniInput === '') {
-        Swal.fire({
-            title: 'Error',
-            text: 'Por favor, ingresa un DNI para buscar.',
-            icon: 'warning',
-            confirmButtonText: 'Aceptar'
         });
-        return;
-    }
 
-    // Recorrer las opciones del select para encontrar el DNI
-    let clienteEncontrado = false;
-    for (let i = 0; i < clienteSelect.options.length; i++) {
-        const option = clienteSelect.options[i];
-        const dni = option.getAttribute('data-dni');
+        // Función de búsqueda para DNI (esto es opcional, ya que no afecta la tabla)
+        document.getElementById('buscarDniBtn').addEventListener('click', function() {
+            const dniInput = document.getElementById('dni_search').value.trim();
+            const clienteSelect = document.getElementById('cliente_id');
 
-        if (dni === dniInput) {
-            clienteSelect.value = option.value; // Seleccionar el cliente
-            clienteEncontrado = true;
+            // Verificar si el campo de búsqueda está vacío
+            if (dniInput === '') {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Por favor, ingresa un DNI para buscar.',
+                    icon: 'warning',
+                    confirmButtonText: 'Aceptar'
+                });
+                return;
+            }
 
-            // Mostrar alerta de cliente encontrado
-            Swal.fire({
-                title: 'Cliente Encontrado',
-                text: `El cliente ${option.text} ha sido seleccionado.`,
-                icon: 'success',
-                confirmButtonText: 'Aceptar'
-            });
-            break;
-        }
-    }
+            // Recorrer las opciones del select para encontrar el DNI
+            let clienteEncontrado = false;
+            for (let i = 0; i < clienteSelect.options.length; i++) {
+                const option = clienteSelect.options[i];
+                const dni = option.getAttribute('data-dni');
 
-    // Mostrar alerta si no se encontró el cliente
-    if (!clienteEncontrado) {
-        Swal.fire({
-            title: 'Cliente No Encontrado',
-            text: 'No se encontró un cliente con el DNI proporcionado.',
-            icon: 'error',
-            confirmButtonText: 'Aceptar'
+                if (dni === dniInput) {
+                    clienteSelect.value = option.value; // Seleccionar el cliente
+                    clienteEncontrado = true;
+
+                    // Mostrar alerta de cliente encontrado
+                    Swal.fire({
+                        title: 'Cliente Encontrado',
+                        text: `El cliente ${option.text} ha sido seleccionado.`,
+                        icon: 'success',
+                        confirmButtonText: 'Aceptar'
+                    });
+                    break;
+                }
+            }
+
+            // Mostrar alerta si no se encontró el cliente
+            if (!clienteEncontrado) {
+                Swal.fire({
+                    title: 'Cliente No Encontrado',
+                    text: 'No se encontró un cliente con el DNI proporcionado.',
+                    icon: 'error',
+                    confirmButtonText: 'Aceptar'
+                });
+            }
         });
-    }
-});
     </script>
 @stop
