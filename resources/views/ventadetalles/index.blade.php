@@ -90,7 +90,6 @@
         </div>
     </div>
 
-    <!-- Campos adicionales para resumen de la venta -->
     <div class="card">
         <div class="card-body">
             <div class="row">
@@ -114,25 +113,28 @@
                     <input type="text" class="form-control" id="igv" readonly>
                 </div>
 
-                <!-- Total a Pagar -->
-
-
+                <!-- Efectivo -->
                 <div class="col-md-3">
                     <label for="efectivo" class="form-label">Efectivo</label>
                     <input type="number" class="form-control" id="efectivo">
                 </div>
+
+                <div class="col-md-3 d-flex justify-content-end align-items-center ms-5">
+                    <button type="button" class="btn btn-primary d-flex align-items-center" id="procesarVenta">
+                        <img src="{{ asset('vendor/adminlte/dist/img/carrito.jpg') }}" alt="Icono Carrito" width="100" height="90" class="me-2">
+                        Registrar Venta
+                    </button>
+                </div>
             </div>
 
             <div class="row mt-3">
-                <!-- Efectivo -->
+                <!-- Cambio -->
                 <div class="col-md-3">
                     <label for="cambio" class="form-label">Cambio</label>
                     <input type="text" class="form-control" id="cambio" readonly>
                 </div>
 
-                <!-- Cambio -->
-
-
+                <!-- Total a Pagar -->
                 <div class="col-md-3">
                     <label for="total_pagar" class="form-label">Total a Pagar</label>
                     <input type="text" class="form-control" id="total_pagar" readonly>
@@ -140,6 +142,7 @@
             </div>
         </div>
     </div>
+
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
