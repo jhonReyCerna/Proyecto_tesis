@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('compras', function (Blueprint $table) {
@@ -24,16 +21,14 @@ return new class extends Migration
             $table->string('estado')->default('pendiente');
             $table->timestamps();
 
-    
+
             $table->foreign('producto_id')->references('id_producto')->on('productos')->onDelete('cascade');
             $table->foreign('proveedor_id')->references('id_proveedor')->on('proveedores')->onDelete('cascade');
             $table->foreign('almacen_id')->references('id_almacen')->on('almacenes')->onDelete('cascade');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
+
     public function down(): void
     {
         Schema::dropIfExists('_compras');
