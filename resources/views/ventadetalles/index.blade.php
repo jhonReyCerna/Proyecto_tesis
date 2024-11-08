@@ -39,8 +39,8 @@
 
                     <!-- Campo Fecha -->
                     <div class="col-md-4">
-                        <label for="fecha_search" class="form-label">Buscar por Fecha</label>
-                        <input type="date" class="form-control" id="fecha_search" placeholder="Seleccionar Fecha">
+                        <label for="fecha" class="form-label">Fecha</label>
+                        <input type="date" class="form-control" id="fecha" placeholder="Seleccionar Fecha">
                     </div>
                 </div>
 
