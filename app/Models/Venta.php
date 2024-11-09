@@ -9,18 +9,18 @@ class Venta extends Model
 {
     use HasFactory;
 
-    protected $table = 'ventas';
-    protected $primaryKey = 'id_venta';
+    protected $fillable = ['id_cliente', 'fecha', 'totalPagar', 'estado'];
 
-    // Relación con Cliente
+    // Relación muchos a muchos con productos
+    public function productos()
+    {
+        return $this->belongsToMany(Producto::class, 'venta_producto')
+                    ->withPivot('cantidad', 'precio')
+                    ->withTimestamps();
+    }
+
     public function cliente()
     {
         return $this->belongsTo(Cliente::class, 'id_cliente');
-    }
-
-    // Relación con los detalles de venta
-    public function detalles()
-    {
-        return $this->hasMany(VentaDetalle::class, 'id_venta');
     }
 }

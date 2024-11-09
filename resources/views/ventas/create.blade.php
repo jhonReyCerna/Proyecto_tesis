@@ -23,8 +23,8 @@
             <!-- Fecha de Venta -->
             <div class="col-md-6">
                 <div class="form-group">
-                    <label for="fecha_venta" class="font-weight-bold">Fecha de Venta</label>
-                    <input type="date" id="fecha_venta" name="fecha_venta" class="form-control" required>
+                    <label for="fecha" class="font-weight-bold">Fecha de Venta</label>
+                    <input type="date" id="fecha" name="fecha_venta" class="form-control" required>
                 </div>
             </div>
         </div>
@@ -263,7 +263,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Establecer la fecha actual por defecto
     const fechaActual = new Date().toISOString().split('T')[0];
-    document.getElementById('fecha_venta').value = fechaActual;
+    document.getElementById('fecha').value = fechaActual;
 });
 </script>
 @endpush

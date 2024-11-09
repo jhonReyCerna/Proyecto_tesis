@@ -44,9 +44,15 @@
                             <td>{{ $venta->fecha }}</td>
                             <td>{{ $venta->estado }}</td>
                             <td>
-                                <a href="{{ route('ventas.show', $venta) }}" class="btn btn-info btn-sm">Ver</a>
-                                <a href="{{ route('ventas.edit', $venta) }}" class="btn btn-warning btn-sm">Editar</a>
-                                <form action="{{ route('ventas.destroy', $venta) }}" method="POST" style="display:inline;" class="delete-form">
+                                <!-- Enlace a los detalles de la venta -->
+                                <a href="{{ route('ventas.show', ['venta' => $venta->id_venta]) }}" class="btn btn-info btn-sm">Ver</a>
+
+                                <!-- Enlace para editar la venta -->
+                                <a href="{{ route('ventas.edit', ['venta' => $venta->id_venta]) }}" class="btn btn-warning btn-sm">Editar</a>
+
+
+                                <!-- Formulario para eliminar la venta con SweetAlert -->
+                                <form action="{{ route('ventas.destroy', ['venta' => $venta->id_venta]) }}" method="POST" style="display:inline;" class="delete-form">
                                     @csrf
                                     @method('DELETE')
                                     <button type="button" class="btn btn-danger btn-sm delete-btn">Eliminar</button>
@@ -57,6 +63,7 @@
                 </tbody>
             </table>
 
+            <!-- Paginación -->
             <div class="d-flex justify-content-center">
                 {{ $ventas->links() }}
             </div>
@@ -98,9 +105,9 @@
                 const estado = row.cells[4].textContent.toLowerCase();
 
                 if (cliente.includes(searchValue) || fecha.includes(searchValue) || estado.includes(searchValue)) {
-                    row.style.display = '';
+                    row.style.display = ''; // Mostrar fila
                 } else {
-                    row.style.display = 'none';
+                    row.style.display = 'none'; // Ocultar fila
                 }
             });
         });
