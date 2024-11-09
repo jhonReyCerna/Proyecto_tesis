@@ -64,132 +64,141 @@
 
 <!-- Script para manejar la selección de productos y cálculo del subtotal -->
 <script>
-    // Productos ejemplo, esta información puede provenir de la base de datos
-    const productos = @json($productos);
 
-    // Función para agregar productos dinámicamente
-    function agregarProducto() {
+    // Productos ejemplo, esta información debe provenir de la base de datos
+const productos = @json($productos);
+
+// Función para agregar productos dinámicamente
+function agregarProducto() {
     const productosTable = document.getElementById('productos').getElementsByTagName('tbody')[0];
-
-    // Crear una nueva fila de producto
     const row = productosTable.insertRow();
 
-    // Crear celdas para el nombre, cantidad, precio unitario, subtotal y acciones
-    const celdaProducto = row.insertCell(0);
-    const celdaCantidad = row.insertCell(1);
-    const celdaPrecio = row.insertCell(2);
-    const celdaSubtotal = row.insertCell(3);
-    const celdaAcciones = row.insertCell(4);
+    // Crear las celdas
+    const celdas = {
+        producto: row.insertCell(0),
+        cantidad: row.insertCell(1),
+        precio: row.insertCell(2),
+        subtotal: row.insertCell(3),
+        acciones: row.insertCell(4)
+    };
 
-    // Crear un select de productos
+    // Crear select de productos
     const selectProducto = document.createElement('select');
     selectProducto.classList.add('form-control');
     selectProducto.name = 'productos[][id_producto]';
-    selectProducto.addEventListener('change', actualizarPrecioYSubtotal); // Actualizar precio y subtotal cuando el producto cambie
+    selectProducto.required = true;
 
-    // Agregar una opción por defecto para "Seleccionar producto"
-    const opcionSeleccionar = document.createElement('option');
-    opcionSeleccionar.value = '';
-    opcionSeleccionar.textContent = 'Seleccionar producto';
-    selectProducto.appendChild(opcionSeleccionar);
+    // Opción por defecto
+    selectProducto.innerHTML = `
+        <option value="">Seleccionar producto</option>
+        ${productos.map(p => `
+            <option value="${p.id_producto}"
+                    data-precio="${p.precio}">${p.nombre}</option>
+        `).join('')}
+    `;
 
-    productos.forEach(producto => {
-        const option = document.createElement('option');
-        option.value = producto.id_producto;
-        option.textContent = producto.nombre;
-        selectProducto.appendChild(option);
-    });
-
-    celdaProducto.appendChild(selectProducto);
-
-    // Crear un input para la cantidad
+    // Input para cantidad
     const inputCantidad = document.createElement('input');
     inputCantidad.type = 'number';
     inputCantidad.name = 'productos[][cantidad]';
     inputCantidad.classList.add('form-control');
-    inputCantidad.value = 0;
-    inputCantidad.min = 0;
-    inputCantidad.addEventListener('input', actualizarSubtotal); // Actualizar subtotal cuando la cantidad cambie
-    celdaCantidad.appendChild(inputCantidad);
+    inputCantidad.min = 1;
+    inputCantidad.value = 1;
+    inputCantidad.disabled = true;
 
-    // Inicializar el precio unitario como 0
-    const precio = 0; // El precio inicial es 0 hasta que se seleccione un producto
-    celdaPrecio.textContent = precio.toFixed(2);
+    // Span para precio
+    const spanPrecio = document.createElement('span');
+    spanPrecio.classList.add('precio-unitario');
+    spanPrecio.textContent = '0.00';
 
-    // Subtotal, se actualizará cada vez que la cantidad cambie
-    celdaSubtotal.textContent = (precio * 1).toFixed(2);
+    // Span para subtotal
+    const spanSubtotal = document.createElement('span');
+    spanSubtotal.classList.add('subtotal');
+    spanSubtotal.textContent = '0.00';
 
-    // Crear un botón para eliminar la fila
+    // Botón eliminar
     const btnEliminar = document.createElement('button');
-    btnEliminar.classList.add('btn', 'btn-danger', 'btn-sm');
-    btnEliminar.textContent = 'Eliminar';
     btnEliminar.type = 'button';
-    btnEliminar.onclick = () => eliminarFila(row); // Llamar a la función de eliminar fila
-    celdaAcciones.appendChild(btnEliminar);
+    btnEliminar.classList.add('btn', 'btn-danger', 'btn-sm');
+    btnEliminar.innerHTML = '<i class="fas fa-trash"></i> Eliminar';
+
+    // Agregar elementos a las celdas
+    celdas.producto.appendChild(selectProducto);
+    celdas.cantidad.appendChild(inputCantidad);
+    celdas.precio.appendChild(spanPrecio);
+    celdas.subtotal.appendChild(spanSubtotal);
+    celdas.acciones.appendChild(btnEliminar);
+
+    // Event Listeners
+    selectProducto.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const precio = selectedOption.dataset.precio || 0;
+
+        spanPrecio.textContent = Number(precio).toFixed(2);
+        inputCantidad.disabled = !this.value;
+        inputCantidad.value = 1;
+
+        actualizarSubtotal(row);
+    });
+
+    inputCantidad.addEventListener('input', () => actualizarSubtotal(row));
+    btnEliminar.addEventListener('click', () => row.remove());
 }
 
-    // Función para actualizar el precio unitario y el subtotal basado en el producto seleccionado
-    function actualizarPrecioYSubtotal(event) {
-        const fila = event.target.closest('tr');
-        const selectProducto = fila.querySelector('select');
-        const productoId = selectProducto.value;
+// Función para actualizar subtotal de una fila
+function actualizarSubtotal(row) {
+    const cantidad = Number(row.querySelector('input[type="number"]').value);
+    const precio = Number(row.querySelector('.precio-unitario').textContent);
+    const spanSubtotal = row.querySelector('.subtotal');
 
-        // Buscar el precio del producto seleccionado
-        const producto = productos.find(p => p.id_producto == productoId);
+    spanSubtotal.textContent = (cantidad * precio).toFixed(2);
+    actualizarTotal();
+}
 
-        // Actualizar el precio unitario
-        const celdaPrecio = fila.querySelector('td:nth-child(3)');
-        if (producto) {
-            celdaPrecio.textContent = producto.precio.toFixed(2);
-        } else {
-            celdaPrecio.textContent = '0.00';
-        }
+// Función para actualizar el total general
+function actualizarTotal() {
+    const subtotales = Array.from(document.querySelectorAll('.subtotal'))
+        .map(span => Number(span.textContent));
 
-        // Actualizar el subtotal
-        actualizarSubtotal(event); // Actualiza el subtotal después de cambiar el producto
+    const total = subtotales.reduce((sum, subtotal) => sum + subtotal, 0);
+
+    const totalElement = document.getElementById('total-venta');
+    if (totalElement) {
+        totalElement.textContent = total.toFixed(2);
+    }
+}
+
+// Función para validar el formulario
+function validarFormulario() {
+    const filas = document.querySelectorAll('#productos tbody tr');
+
+    if (filas.length === 0) {
+        alert('Debe agregar al menos un producto a la venta.');
+        return false;
     }
 
-    // Función para actualizar el subtotal basado en la cantidad
-    function actualizarSubtotal(event) {
-        const fila = event.target.closest('tr');
+    for (const fila of filas) {
+        const producto = fila.querySelector('select').value;
         const cantidad = fila.querySelector('input[type="number"]').value;
-        const selectProducto = fila.querySelector('select');
-        const productoId = selectProducto.value;
 
-        // Buscar el precio del producto seleccionado
-        const producto = productos.find(p => p.id_producto == productoId);
+        if (!producto) {
+            alert('Por favor seleccione todos los productos.');
+            return false;
+        }
 
-        // Actualizar el subtotal
-        const subtotal = fila.querySelector('td:nth-child(4)');
-        if (producto) {
-            subtotal.textContent = (producto.precio * cantidad).toFixed(2);
-        } else {
-            subtotal.textContent = '0.00';
+        if (cantidad < 1) {
+            alert('La cantidad debe ser mayor a 0 para todos los productos.');
+            return false;
         }
     }
 
-    // Función para eliminar una fila
-    function eliminarFila(fila) {
-        fila.remove();
-    }
+    return true;
+}
 
-    // Función para validar que se haya seleccionado al menos un producto
-    function validarFormulario() {
-        const productosSeleccionados = document.querySelectorAll('select[name="productos[][id_producto]"]');
-        let esValido = true;
-
-        productosSeleccionados.forEach(select => {
-            if (!select.value) {
-                esValido = false;
-                alert('Por favor seleccione un producto para la venta.');
-            }
-        });
-
-        return esValido;
-    }
-
-    // Inicializar con una fila de producto
+// Inicializar con una fila
+document.addEventListener('DOMContentLoaded', () => {
     agregarProducto();
-</script>
+});
 
-@endsection
+</script>
+@stop
