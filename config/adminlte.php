@@ -366,15 +366,16 @@ return [
             'icon' => 'fas fa-donate',
             'submenu' => [
                 [
-                    'text' => 'Nueva Venta',
+                    'text' => 'Ventas',
+                    'route' => 'ventas.index',
+                    'icon' => 'fas fa-chart-line',
+                ],
+                [
+                    'text' => 'Venta Detalles',
                     'route' => 'ventadetalles.index',
                     'icon' => 'fas fa-cogs',
                 ],
-                [
-                    'text' => 'Gestionar Ventas',
-                    'route' => 'gestionarventas.index',
-                    'icon' => 'fas fa-chart-line',
-                ],
+
             ],
         ],
 

@@ -9,50 +9,44 @@ class VentaDetalle extends Model
 {
     use HasFactory;
 
-    // Especificar la tabla asociada al modelo
+    // Definir la tabla asociada
     protected $table = '_ventas_detalles';
 
-    // Definir la clave primaria de la tabla
-    protected $primaryKey = 'id_detalle';
-
-    // Permitir asignación masiva en estos campos
+    // Definir los campos que son asignables masivamente
     protected $fillable = [
         'id_venta',
         'id_producto',
+        'id_cliente',
         'cantidad',
         'precio_unitario',
         'descuento',
         'igv',
         'subtotal',
-        'cambio'
+        'cambio',
     ];
 
-    // Definir las relaciones con otras tablas
-
-    /**
-     * Relación con la tabla '_gestionar_ventas'
-     * Un detalle de venta pertenece a una venta.
-     */
+    // Relación con la tabla 'Venta'
     public function venta()
     {
-        return $this->belongsTo(VentaDetalle::class, 'id_venta', 'id_venta');
+        return $this->belongsTo(Venta::class, 'id_venta', 'id_venta');
     }
 
-    /**
-     * Relación con la tabla 'productos'
-     * Un detalle de venta pertenece a un producto.
-     */
+    // Relación con la tabla 'Producto'
     public function producto()
     {
         return $this->belongsTo(Producto::class, 'id_producto', 'id_producto');
     }
 
-    /**
-     * Obtener el subtotal con el IGV incluido
-     * @return float
-     */
-    public function getSubtotalWithIgvAttribute()
+    // Relación con la tabla 'Cliente'
+    public function cliente()
     {
-        return $this->subtotal + $this->igv;
+        return $this->belongsTo(Cliente::class, 'id_cliente', 'id_cliente');
     }
+
+    // Definir los atributos con valores por defecto (si es necesario)
+    protected $attributes = [
+        'descuento' => 0,
+        'igv' => 0,
+        'cambio' => 0,
+    ];
 }

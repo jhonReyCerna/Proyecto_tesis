@@ -1,312 +1,48 @@
-@extends('adminlte::page')
+<!-- resources/views/ventadetalles/index.blade.php -->
 
-@section('title', 'Lista de Ventas')
-
-@section('content_header')
-    <h1>Lista de Ventas</h1>
-@stop
+@extends('layouts.app')
 
 @section('content')
+    <h1>Detalles de Ventas</h1>
+
+    <!-- Mostrar mensaje de éxito si existe -->
     @if(session('success'))
         <div class="alert alert-success">
             {{ session('success') }}
         </div>
     @endif
 
-    <form action="" method="POST" id="clienteForm" onsubmit="return false;">
-        @csrf
-        <div class="card">
-            <div class="card-body">
-                <div class="row">
-                    <!-- Campo Cliente -->
-                    <div class="col-md-4">
-                        <label for="cliente_id" class="form-label">Cliente</label>
-                        <select name="cliente_id" id="cliente_id" class="form-control" required>
-                            <option value="">Seleccionar Cliente</option>
-                            @foreach ($clientes as $cliente)
-                                <option value="{{ $cliente->id_cliente }}" data-dni="{{ $cliente->dni }}">{{ $cliente->nombre }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+    <a href="{{ route('ventadetalles.create') }}" class="btn btn-primary">Crear Detalle de Venta</a>
 
-                    <div class="col-md-4">
-                        <label for="dni_search" class="form-label">Buscar por DNI</label>
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="dni_search" placeholder="Buscar por DNI">
-                            <button type="button" class="btn btn-success" id="buscarDniBtn">Buscar</button>
-                        </div>
-                    </div>
-
-                    <!-- Campo Fecha -->
-                    <div class="col-md-4">
-                        <label for="fecha" class="form-label">Fecha</label>
-                        <input type="date" class="form-control" id="fecha" placeholder="Seleccionar Fecha">
-                    </div>
-                </div>
-
-                <div class="row align-items-end">
-                    <div class="col-md-4">
-                        <label for="producto_id" class="form-label">Producto</label>
-                        <select name="producto_id" id="producto_id" class="form-control" required>
-                            <option value="">Seleccionar Producto</option>
-                            @foreach ($productos as $producto)
-                                <option value="{{ $producto->id_producto }}" data-precio="{{ $producto->precio }}">{{ $producto->nombre }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div class="col-md-4">
-                        <label for="cantidad_productos" class="form-label">Cantidad de productos</label>
-                        <input type="number" class="form-control" id="cantidad_productos" name="cantidad_productos" min="1" oninput="this.value = Math.abs(this.value)" required placeholder="0">
-                    </div>
-
-                    <div class="col-md-4 d-flex">
-                        <button type="button" class="btn btn-primary ms-2" id="registrarBtn">Añadir</button>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </form>
-
-    <div class="card">
-        <div class="card-body">
-            <table class="table table-bordered table-striped" id="ventas-table">
-                <thead>
-                    <tr>
-                        <th>N°</th>
-                        <th>Producto</th>
-                        <th>Cantidad</th>
-                        <th>Precio Unitario</th>
-                        <th>Subtotal</th>
-                        <th>Total a Pagar</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Las filas de la tabla se añadirán aquí dinámicamente -->
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="card-body">
-            <div class="row">
-                <!-- SubTotal -->
-                <div class="col-md-3">
-                    <label for="subtotal" class="form-label">Subtotal</label>
-                    <input type="text" class="form-control" id="subtotal" readonly>
-                </div>
-
-                <!-- Descuento -->
-                <div class="col-md-3">
-                    <label for="descuento" class="form-label">Descuento (%)</label>
-                    <input type="number" class="form-control" id="descuento" value="0" min="0" max="100">
-                </div>
-            </div>
-
-            <div class="row mt-3">
-                <!-- IGV -->
-                <div class="col-md-3">
-                    <label for="igv" class="form-label">IGV (18%)</label>
-                    <input type="text" class="form-control" id="igv" readonly>
-                </div>
-
-                <!-- Efectivo -->
-                <div class="col-md-3">
-                    <label for="efectivo" class="form-label">Efectivo</label>
-                    <input type="number" class="form-control" id="efectivo">
-                </div>
-
-                <div class="col-md-3 d-flex justify-content-end align-items-center ms-5">
-                    <button type="button" class="btn btn-primary d-flex align-items-center" id="procesarVenta">
-                        <img src="{{ asset('vendor/adminlte/dist/img/carrito.jpg') }}" alt="Icono Carrito" width="100" height="90" class="me-2">
-                        Registrar Venta
-                    </button>
-                </div>
-            </div>
-
-            <div class="row mt-3">
-                <!-- Cambio -->
-                <div class="col-md-3">
-                    <label for="cambio" class="form-label">Cambio</label>
-                    <input type="text" class="form-control" id="cambio" readonly>
-                </div>
-
-                <!-- Total a Pagar -->
-                <div class="col-md-3">
-                    <label for="total_pagar" class="form-label">Total a Pagar</label>
-                    <input type="text" class="form-control" id="total_pagar" readonly>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-    <script>
-
-document.getElementById('buscarDniBtn').addEventListener('click', function() {
-    const dniInput = document.getElementById('dni_search').value;
-
-    if (!dniInput) {
-        Swal.fire({
-            title: 'Error',
-            text: 'Por favor, ingresa un DNI para buscar.',
-            icon: 'warning',
-            confirmButtonText: 'Aceptar'
-        });
-        return;
-    }
-
-    // Mostrar un alert animado antes de proceder con la búsqueda
-    Swal.fire({
-        title: '¿Estás seguro?',
-        text: "¿Deseas buscar el cliente por este DNI?",
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Sí, buscar',
-        cancelButtonText: 'Cancelar'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // Lógica para buscar el cliente por el DNI
-            // Por ejemplo, hacer una petición AJAX o realizar la búsqueda directamente
-
-            // Ejemplo de búsqueda (esto debería ser adaptado a tu lógica de búsqueda)
-            const clienteSelect = document.getElementById('cliente_id');
-            let found = false;
-
-            // Buscar el cliente en la lista de clientes
-            for (let i = 0; i < clienteSelect.options.length; i++) {
-                if (clienteSelect.options[i].dataset.dni === dniInput) {
-                    clienteSelect.value = clienteSelect.options[i].value;  // Seleccionar el cliente
-                    found = true;
-                    break;
-                }
-            }
-
-            // Mostrar mensaje dependiendo de si se encontró o no el cliente
-            if (found) {
-                Swal.fire({
-                    title: 'Cliente encontrado',
-                    text: 'Se ha encontrado el cliente con el DNI proporcionado.',
-                    icon: 'success',
-                    confirmButtonText: 'Aceptar'
-                });
-            } else {
-                Swal.fire({
-                    title: 'Cliente no encontrado',
-                    text: 'No se ha encontrado un cliente con ese DNI.',
-                    icon: 'error',
-                    confirmButtonText: 'Aceptar'
-                });
-            }
-        }
-    });
-});
-
-       // Variables globales
-let totalPagar = 0;  // Total acumulado de la venta
-let numero = 1;  // Número de productos en la lista
-
-// Función para añadir productos a la tabla
-document.getElementById('registrarBtn').addEventListener('click', function() {
-    const productoSelect = document.getElementById('producto_id');
-    const cantidadInput = document.getElementById('cantidad_productos');
-
-    const productoId = productoSelect.value;
-    const productoNombre = productoSelect.options[productoSelect.selectedIndex].text;
-    const cantidad = parseInt(cantidadInput.value);
-    const precioUnitario = parseFloat(productoSelect.options[productoSelect.selectedIndex].getAttribute('data-precio'));
-
-    if (!productoId || !cantidad || isNaN(precioUnitario)) {
-        Swal.fire({
-            title: 'Error',
-            text: 'Por favor, selecciona un producto y asegúrate de ingresar una cantidad válida.',
-            icon: 'warning',
-            confirmButtonText: 'Aceptar'
-        });
-        return;
-    }
-
-    const subtotal = cantidad * precioUnitario;
-
-    // Agregar fila a la tabla sin afectar el precio total global
-    const ventasTable = document.getElementById('ventas-table').getElementsByTagName('tbody')[0];
-    const newRow = ventasTable.insertRow();
-    newRow.innerHTML = `
-        <td>${numero++}</td>
-        <td>${productoNombre}</td>
-        <td>${cantidad}</td>
-        <td>${precioUnitario.toFixed(2)}</td>
-        <td>${subtotal.toFixed(2)}</td>
-        <td>${subtotal.toFixed(2)}</td> <!-- Total a pagar igual al subtotal -->
-        <td>
-            <button type="button" class="btn btn-danger btn-sm delete-row-btn">Eliminar</button>
-        </td>
-    `;
-
-    // Limpiar campos de entrada
-    productoSelect.value = '';
-    cantidadInput.value = '';
-
-    // Función para eliminar filas
-    newRow.querySelector('.delete-row-btn').addEventListener('click', function() {
-        this.closest('tr').remove();
-        actualizarTotales();  // Recalcular los totales
-    });
-
-    // Actualizar los totales en la interfaz
-    actualizarTotales();
-});
-
-// Función para actualizar los totales
-function actualizarTotales() {
-    const ventasTable = document.getElementById('ventas-table').getElementsByTagName('tbody')[0];
-    const rows = ventasTable.getElementsByTagName('tr');
-
-    let subtotal = 0;
-
-    // Sumar todos los subtotales de la tabla
-    for (let i = 0; i < rows.length; i++) {
-        const subtotalCell = rows[i].cells[4].innerText; // Columna de subtotal
-        subtotal += parseFloat(subtotalCell);
-    }
-
-    const descuento = parseFloat(document.getElementById('descuento').value || 0);
-    const totalConDescuento = subtotal - descuento;  // Aplicar descuento
-
-    const igv = totalConDescuento * 0.18;  // Calcular IGV (18%)
-    const totalFinal = totalConDescuento + igv;  // Total final a pagar con IGV
-
-    // Actualizar los campos de la interfaz
-    document.getElementById('subtotal').value = subtotal.toFixed(2);
-    document.getElementById('igv').value = igv.toFixed(2);
-    document.getElementById('total_pagar').value = totalFinal.toFixed(2);
-}
-
-// Evento para recalcular totales cuando se cambie el descuento
-document.getElementById('descuento').addEventListener('input', function() {
-    const totalOriginal = 1000; // Este es el total original antes de aplicar el descuento (puedes cambiarlo según tu lógica)
-    const descuento = parseFloat(document.getElementById('descuento').value || 0);
-
-    // Calcular el total a pagar con el descuento
-    const totalConDescuento = totalOriginal - (totalOriginal * (descuento / 100));
-
-    // Actualizar el campo "Total a Pagar"
-    document.getElementById('total_pagar').value = totalConDescuento.toFixed(2);
-});
-
-// Evento para calcular el cambio al ingresar efectivo
-document.getElementById('efectivo').addEventListener('input', function() {
-    const efectivo = parseFloat(this.value) || 0;
-    const totalPagar = parseFloat(document.getElementById('total_pagar').value) || 0;
-    const cambio = efectivo - totalPagar;  // Calcular el cambio
-    document.getElementById('cambio').value = cambio.toFixed(2);  // Mostrar cambio
-});
-    </script>
-@stop
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>ID Venta</th>
+                <th>ID Producto</th>
+                <th>Cantidad</th>
+                <th>Precio Unitario</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($ventaDetalles as $ventaDetalle)
+                <tr>
+                    <td>{{ $ventaDetalle->id_detalle }}</td>
+                    <td>{{ $ventaDetalle->id_venta }}</td>
+                    <td>{{ $ventaDetalle->id_producto }}</td>
+                    <td>{{ $ventaDetalle->cantidad }}</td>
+                    <td>{{ $ventaDetalle->precio_unitario }}</td>
+                    <td>
+                        <a href="{{ route('ventadetalles.edit', $ventaDetalle->id_detalle) }}" class="btn btn-warning">Editar</a>
+                        <form action="{{ route('ventadetalles.destroy', $ventaDetalle->id_detalle) }}" method="POST" style="display:inline;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+@endsection

@@ -7,6 +7,7 @@ use App\Http\Controllers\CompraController;
 use App\Http\Controllers\GestionarVentaController;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\ProveedorController;
+use App\Http\Controllers\VentaController;
 use App\Http\Controllers\VentaDetalleController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -121,39 +122,36 @@ Route::delete('compra/destroy/{compra}', [CompraController::class, 'destroy'])->
 Route::get('compras/reporte', [CompraController::class, 'generarReportePDF'])->name('compras.reporte');
 
 //--------------------------------------------------------------------------------------------------------------------------
+Route::get('venta/index', [VentaController::class, 'index'])->name('ventas.index');
 
-Route::get('gestionarventas/index', [GestionarVentaController::class, 'index'])->name('gestionarventas.index');
+Route::get('venta/create', [VentaController::class, 'create'])->name('ventas.create');
 
-Route::get('gestionarventas/create', [GestionarVentaController::class, 'create'])->name('gestionarventas.create');
+Route::post('venta/store', [VentaController::class, 'store'])->name('ventas.store');
 
-Route::post('gestionarventas/store', [GestionarVentaController::class, 'store'])->name('gestionarventas.store');
+Route::get('venta/show/{venta}', [VentaController::class, 'show'])->name('ventas.show');
 
-Route::get('gestionarventas/show/{gestionarventa}', [GestionarVentaController::class, 'show'])->name('gestionarventas.show');
+Route::get('venta/edit/{venta}', [VentaController::class, 'edit'])->name('ventas.edit');
 
-Route::get('gestionarventas/edit/{gestionarventa}', [GestionarVentaController::class, 'edit'])->name('gestionarventas.edit');
+Route::put('venta/update/{venta}', [VentaController::class, 'update'])->name('ventas.update');
 
-Route::put('gestionarventas/update/{gestionarventa}', [GestionarVentaController::class, 'update'])->name('gestionarventas.update');
+Route::delete('venta/destroy/{venta}', [VentaController::class, 'destroy'])->name('ventas.destroy');
 
-Route::delete('gestionarventas/destroy/{gestionarventa}', [GestionarVentaController::class, 'destroy'])->name('gestionarventas.destroy');
-
-Route::get('gestionarventas/reporte', [GestionarVentaController::class, 'generarReportePDF'])->name('gestionarventas.reporte');
+Route::get('ventas/reporte', [VentaController::class, 'generarReportePDF'])->name('ventas.reporte');
 
 //----------------------------------------------------------------------------------------------------------
 
-Route::get('ventasdetalles/index', [VentaDetalleController::class, 'index'])->name('ventadetalles.index');
+Route::get('venta_detalles/index', [VentaDetalleController::class, 'index'])->name('ventadetalles.index');
 
-Route::get('ventasdetalles/create', [VentaDetalleController::class, 'create'])->name('ventadetalles.create');
+Route::get('venta_detalles/create', [VentaDetalleController::class, 'create'])->name('ventadetalles.create');
 
-Route::post('ventasdetalles/store', [VentaDetalleController::class, 'store'])->name('ventadetalles.store');
+Route::post('venta_detalles/store', [VentaDetalleController::class, 'store'])->name('ventadetalles.store');
 
-Route::get('ventasdetalles/show/{ventadetalle}', [VentaDetalleController::class, 'show'])->name('ventadetalles.show');
+Route::get('venta_detalles/show/{ventadetalle}', [VentaDetalleController::class, 'show'])->name('ventadetalles.show');
 
-Route::get('ventasdetalles/edit/{ventadetalle}', [VentaDetalleController::class, 'edit'])->name('ventadetalles.edit');
+Route::get('venta_detalles/edit/{ventadetalle}', [VentaDetalleController::class, 'edit'])->name('ventadetalles.edit');
 
-Route::put('ventasdetalles/update/{ventadetalle}', [VentaDetalleController::class, 'update'])->name('ventadetalles.update');
+Route::put('venta_detalles/update/{ventadetalle}', [VentaDetalleController::class, 'update'])->name('ventadetalles.update');
 
-Route::delete('ventasdetalles/destroy/{ventadetalle}', [VentaDetalleController::class, 'destroy'])->name('ventadetalles.destroy');
-
-
+Route::delete('venta_detalles/destroy/{ventadetalle}', [VentaDetalleController::class, 'destroy'])->name('ventadetalles.destroy');
 
 

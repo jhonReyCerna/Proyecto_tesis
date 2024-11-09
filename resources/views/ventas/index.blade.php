@@ -13,26 +13,23 @@
         </div>
     @endif
 
+    <!-- Búsqueda sin recarga -->
     <form class="mb-3">
         <div class="input-group">
-            <input type="text" id="search" class="form-control" placeholder="Buscar por cliente o estado">
+            <input type="text" id="search" class="form-control" placeholder="Buscar por cliente, producto o fecha">
         </div>
     </form>
 
-    <a href="{{ route('gestionarventas.create') }}" class="btn btn-primary mb-3">Agregar Venta</a>
-
-    <a href="{{ route('gestionarventas.reporte') }}" class="btn btn-success mb-3">
-        <i class="fas fa-file-pdf"></i> Generar Reporte PDF
-    </a>
+    <a href="{{ route('ventas.create') }}" class="btn btn-primary mb-3">Registrar Nueva Venta</a>
 
     <div class="card">
         <div class="card-body">
             <table class="table table-bordered table-striped">
                 <thead>
                     <tr>
-                        <th>ID Venta</th>
+                        <th>ID</th>
                         <th>Cliente</th>
-                        <th>Total a Pagar</th>
+                        <th>Total</th>
                         <th>Fecha</th>
                         <th>Estado</th>
                         <th>Acciones</th>
@@ -43,21 +40,13 @@
                         <tr>
                             <td>{{ $venta->id_venta }}</td>
                             <td>{{ $venta->cliente->nombre }}</td>
-                            <td>{{ number_format($venta->totalPagar, 2) }}</td>
-                            <td>{{ \Carbon\Carbon::parse($venta->fecha)->format('Y-m-d') }}</td>
+                            <td>{{ $venta->totalPagar }}</td>
+                            <td>{{ $venta->fecha }}</td>
+                            <td>{{ $venta->estado }}</td>
                             <td>
-                                @if($venta->estado == 'pendiente')
-                                    <span class="badge bg-warning">Pendiente</span>
-                                @elseif($venta->estado == 'pagado')
-                                    <span class="badge bg-success">Pagado</span>
-                                @else
-                                    {{ ucfirst($venta->estado) }}
-                                @endif
-                            </td>
-                            <td>
-                                <a href="{{ route('gestionarventas.show', ['venta' => $venta->id_venta]) }}" class="btn btn-info btn-sm">Ver</a>
-                                <a href="{{ route('gestionarventas.edit', ['venta' => $venta->id_venta]) }}" class="btn btn-warning btn-sm">Editar</a>
-                                <form action="{{ route('gestionarventas.destroy', ['venta' => $venta->id_venta]) }}" method="POST" style="display:inline;" class="delete-form">
+                                <a href="{{ route('ventas.show', $venta) }}" class="btn btn-info btn-sm">Ver</a>
+                                <a href="{{ route('ventas.edit', $venta) }}" class="btn btn-warning btn-sm">Editar</a>
+                                <form action="{{ route('ventas.destroy', $venta) }}" method="POST" style="display:inline;" class="delete-form">
                                     @csrf
                                     @method('DELETE')
                                     <button type="button" class="btn btn-danger btn-sm delete-btn">Eliminar</button>
@@ -71,12 +60,13 @@
             <div class="d-flex justify-content-center">
                 {{ $ventas->links() }}
             </div>
+
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // Confirmación para eliminar una venta
+        // Funcionalidad de SweetAlert2 para eliminar ventas
         document.querySelectorAll('.delete-btn').forEach(function(button) {
             button.addEventListener('click', function() {
                 const form = this.closest('.delete-form');
@@ -97,16 +87,17 @@
             });
         });
 
-        // Búsqueda dinámica
+        // Funcionalidad de búsqueda sin recarga
         document.getElementById('search').addEventListener('keyup', function() {
             const searchValue = this.value.toLowerCase();
             const rows = document.querySelectorAll('#ventas-table tr');
 
             rows.forEach(function(row) {
                 const cliente = row.cells[1].textContent.toLowerCase();
+                const fecha = row.cells[3].textContent.toLowerCase();
                 const estado = row.cells[4].textContent.toLowerCase();
 
-                if (cliente.includes(searchValue) || estado.includes(searchValue)) {
+                if (cliente.includes(searchValue) || fecha.includes(searchValue) || estado.includes(searchValue)) {
                     row.style.display = '';
                 } else {
                     row.style.display = 'none';
