@@ -3,7 +3,7 @@
 @section('content')
 <div class="container mt-5">
     <h1 class="text-center mb-4">Realizar Venta</h1>
-    <form action="{{ route('ventas.store') }}" method="POST" onsubmit="return validarFormulario()">
+    <form action="{{ route('ventas.store') }}" method="POST" id="ventaForm" onsubmit="return validarFormulario()">
         @csrf
 
         <div class="row">
@@ -46,6 +46,13 @@
                     <tbody>
                         <!-- Filas dinámicas de productos -->
                     </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3" class="text-right font-weight-bold">Total:</td>
+                            <td id="total-venta" class="font-weight-bold">0.00</td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
         </div>
@@ -55,21 +62,50 @@
             <button type="button" class="btn btn-primary" onclick="agregarProducto()">
                 <i class="fas fa-plus-circle"></i> Agregar Producto
             </button>
-            <button type="submit" class="btn btn-success">
+            <button type="submit" class="btn btn-success" id="btnRealizarVenta">
                 <i class="fas fa-check-circle"></i> Realizar Venta
             </button>
         </div>
     </form>
 </div>
 
-<!-- Script para manejar la selección de productos y cálculo del subtotal -->
+@push('js')
 <script>
-
-    // Productos ejemplo, esta información debe provenir de la base de datos
+// Productos ejemplo, esta información debe provenir de la base de datos
 const productos = @json($productos);
+
+// Función para validar productos existentes antes de agregar uno nuevo
+function validarProductosExistentes() {
+    const filas = document.querySelectorAll('#productos tbody tr');
+    let todosSeleccionados = true;
+
+    filas.forEach(fila => {
+        const select = fila.querySelector('select[name="productos[][id_producto]"]');
+        if (!select.value) {
+            todosSeleccionados = false;
+        }
+    });
+
+    if (!todosSeleccionados) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Producto no seleccionado',
+            text: 'Por favor, seleccione un producto en la fila actual antes de agregar una nueva.',
+            confirmButtonText: 'Entendido'
+        });
+        return false;
+    }
+
+    return true;
+}
 
 // Función para agregar productos dinámicamente
 function agregarProducto() {
+    // Validar antes de agregar
+    if (!validarProductosExistentes()) {
+        return;
+    }
+
     const productosTable = document.getElementById('productos').getElementsByTagName('tbody')[0];
     const row = productosTable.insertRow();
 
@@ -142,7 +178,10 @@ function agregarProducto() {
     });
 
     inputCantidad.addEventListener('input', () => actualizarSubtotal(row));
-    btnEliminar.addEventListener('click', () => row.remove());
+    btnEliminar.addEventListener('click', () => {
+        row.remove();
+        actualizarTotal();
+    });
 }
 
 // Función para actualizar subtotal de una fila
@@ -161,19 +200,19 @@ function actualizarTotal() {
         .map(span => Number(span.textContent));
 
     const total = subtotales.reduce((sum, subtotal) => sum + subtotal, 0);
-
-    const totalElement = document.getElementById('total-venta');
-    if (totalElement) {
-        totalElement.textContent = total.toFixed(2);
-    }
+    document.getElementById('total-venta').textContent = total.toFixed(2);
 }
 
-// Función para validar el formulario
+// Función para validar el formulario completo
 function validarFormulario() {
     const filas = document.querySelectorAll('#productos tbody tr');
 
     if (filas.length === 0) {
-        alert('Debe agregar al menos un producto a la venta.');
+        Swal.fire({
+            icon: 'error',
+            title: 'Error de validación',
+            text: 'Debe agregar al menos un producto a la venta.'
+        });
         return false;
     }
 
@@ -182,15 +221,38 @@ function validarFormulario() {
         const cantidad = fila.querySelector('input[type="number"]').value;
 
         if (!producto) {
-            alert('Por favor seleccione todos los productos.');
+            Swal.fire({
+                icon: 'error',
+                title: 'Error de validación',
+                text: 'Por favor seleccione todos los productos.'
+            });
             return false;
         }
 
         if (cantidad < 1) {
-            alert('La cantidad debe ser mayor a 0 para todos los productos.');
+            Swal.fire({
+                icon: 'error',
+                title: 'Error de validación',
+                text: 'La cantidad debe ser mayor a 0 para todos los productos.'
+            });
             return false;
         }
     }
+
+    // Deshabilitar el botón para evitar envíos duplicados
+    document.getElementById('btnRealizarVenta').disabled = true;
+
+    // Mostrar indicador de carga
+    Swal.fire({
+        title: 'Procesando venta...',
+        text: 'Por favor espere',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
 
     return true;
 }
@@ -198,7 +260,11 @@ function validarFormulario() {
 // Inicializar con una fila
 document.addEventListener('DOMContentLoaded', () => {
     agregarProducto();
-});
 
+    // Establecer la fecha actual por defecto
+    const fechaActual = new Date().toISOString().split('T')[0];
+    document.getElementById('fecha_venta').value = fechaActual;
+});
 </script>
+@endpush
 @stop
