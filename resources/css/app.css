@@ -1,0 +1,5 @@
+/* Ocultar la columna de Acciones */
+#productos th:nth-child(5), /* Ocultar encabezado de la columna Acciones */
+#productos td:nth-child(5) { /* Ocultar celdas de la columna Acciones */
+    display: none;
+}

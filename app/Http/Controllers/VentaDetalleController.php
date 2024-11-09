@@ -10,8 +10,8 @@ class VentaDetalleController extends Controller
     // Mostrar todos los detalles de ventas
     public function index()
     {
-        // Obtener todos los detalles de ventas
-        $ventaDetalles = VentaDetalle::all();
+        // Obtener los detalles de ventas paginados (10 por página, por ejemplo)
+        $ventaDetalles = VentaDetalle::paginate(10);
 
         // Pasar la variable a la vista
         return view('ventadetalles.index', compact('ventaDetalles'));
@@ -21,7 +21,7 @@ class VentaDetalleController extends Controller
     public function create()
     {
         // Pasar la variable a la vista
-        return view('ventadetalles.create');
+        return view('ventadetalles.create', );
     }
 
     // Guardar un nuevo detalle de venta

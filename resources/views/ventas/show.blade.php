@@ -1,26 +1,33 @@
-@extends('adminlte::page')
-
-@section('title', 'Ver Venta')
-
-@section('content_header')
-    <h1>Detalles de la Venta</h1>
-@stop
+@extends('layouts.app')
 
 @section('content')
-    <div class="card">
-        <div class="card-body">
-            <p><strong>ID de Venta:</strong> {{ $venta->id_venta }}</p>
-            <p><strong>Cliente:</strong> {{ $venta->cliente->nombre }}</p>
-            <p><strong>Total a Pagar:</strong> {{ $venta->totalPagar }}</p>
-            <p><strong>Fecha:</strong> {{ $venta->fecha }}</p>
-            <p><strong>Estado:</strong> {{ $venta->estado }}</p>
-        </div>
-    </div>
+<div class="container">
+    <h1>Venta Confirmada</h1>
+    <p><strong>Venta ID:</strong> {{ $venta->id_venta }}</p>
+    <p><strong>Cliente:</strong> {{ $venta->cliente->nombre }}</p>
+    <p><strong>Total a Pagar:</strong> ${{ number_format($venta->totalPagar, 2) }}</p>
+    <p><strong>Estado:</strong> {{ $venta->estado }}</p>
 
-    <a href="{{ route('ventas.edit', $venta) }}" class="btn btn-warning mt-3">Editar Venta</a>
-    <form action="{{ route('ventas.destroy', $venta) }}" method="POST" style="display:inline;">
-        @csrf
-        @method('DELETE')
-        <button type="submit" class="btn btn-danger mt-3">Eliminar Venta</button>
-    </form>
-@stop
+    <h3>Detalles de la Venta</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio Unitario</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($venta->detalles as $detalle)
+                <tr>
+                    <td>{{ $detalle->producto->nombre }}</td>
+                    <td>{{ $detalle->cantidad }}</td>
+                    <td>{{ number_format($detalle->precio_unitario, 2) }}</td>
+                    <td>{{ number_format($detalle->subtotal, 2) }}</td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+</div>
+@endsection
