@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Http\Controllers;
 
 use App\Models\Venta;
@@ -14,12 +13,11 @@ class VentaController extends Controller
 {
     // Mostrar todas las ventas
     public function index()
-{
-  
-    // Cargar ventas con relaciones y aplicar paginación
-    $ventas = Venta::with('cliente', 'detalles.producto')->paginate(10); // 10 ventas por página
-    return view('ventas.index', compact('ventas'));
-}
+    {
+        // Cargar ventas con relaciones y aplicar paginación
+        $ventas = Venta::with('cliente', 'detalles.producto')->paginate(10); // 10 ventas por página
+        return view('ventas.index', compact('ventas'));
+    }
 
     // Mostrar el formulario para crear una nueva venta
     public function create()
@@ -31,60 +29,63 @@ class VentaController extends Controller
 
     // Guardar una nueva venta
     public function store(Request $request)
-{
-    // Validar los datos recibidos
-    $validated = $request->validate([
-        'id_cliente' => 'required|exists:clientes,id_cliente',
-        'totalPagar' => 'required|numeric',
-        'fecha_venta' => 'required|date',
-        'estado' => 'required|string',
-        'descuento' => 'nullable|numeric|min:0|max:100', // Validación del descuento
-        'detalles' => 'required|array',
-        'detalles.*.id_producto' => 'required|exists:productos,id_producto',
-        'detalles.*.cantidad' => 'required|numeric|min:1',
-        'detalles.*.precio_unitario' => 'required|numeric|min:0',
-    ]);
-
-    // Obtener los datos del formulario
-    $descuento = $request->input('descuento', 0); // Valor por defecto 0 si no se proporciona
-
-    // Calcular el total con descuento
-    $totalPagar = $request->input('totalPagar');
-    $totalConDescuento = $totalPagar - ($totalPagar * $descuento / 100);
-
-    // Crear la venta
-    $venta = Venta::create([
-        'id_cliente' => $request->input('id_cliente'),
-        'totalPagar' => $totalPagar,
-        'totalConDescuento' => $totalConDescuento, // Guardar el total con descuento
-        'fecha_venta' => Carbon::parse($request->input('fecha_venta'))->format('Y-m-d'), // Asegúrate de formatear correctamente la fecha
-        'estado' => $request->input('estado'),
-    ]);
-
-    // Registrar los detalles de la venta
-    foreach ($request->input('detalles') as $detalle) {
-        // Si hay descuento en cada detalle, lo calculamos
-        $descuentoDetalle = $detalle['descuento'] ?? 0;
-        $subtotal = ($detalle['cantidad'] * $detalle['precio_unitario']) -
-                    ($detalle['cantidad'] * $detalle['precio_unitario'] * $descuentoDetalle / 100);
-
-        VentaDetalle::create([
-            'id_venta' => $venta->id_venta,
-            'id_producto' => $detalle['id_producto'],
-            'id_cliente' => $request->input('id_cliente'),
-            'cantidad' => $detalle['cantidad'],
-            'precio_unitario' => $detalle['precio_unitario'],
-            'descuento' => $descuentoDetalle, // Descuento por producto
-            'igv' => $detalle['igv'] ?? 0,
-            'subtotal' => $subtotal, // Subtotal con el descuento aplicado
-            'cambio' => $detalle['cambio'] ?? 0,
+    {
+        // Validar los datos recibidos
+        $validated = $request->validate([
+            'id_cliente' => 'required|exists:clientes,id_cliente',
+            'totalPagar' => 'required|numeric',
+            'fecha_venta' => 'required|date',
+            'estado' => 'required|string',
+            'descuento' => 'nullable|numeric|min:0|max:100', // Validación del descuento
+            'detalles' => 'required|array',
+            'detalles.*.id_producto' => 'required|exists:productos,id_producto',
+            'detalles.*.cantidad' => 'required|numeric|min:1',
+            'detalles.*.precio_unitario' => 'required|numeric|min:0',
         ]);
+
+        // Obtener los datos del formulario
+        $descuento = $request->input('descuento', 0); // Valor por defecto 0 si no se proporciona
+
+        // Calcular el total con descuento
+        $totalPagar = $request->input('totalPagar');
+        $totalConDescuento = $totalPagar - ($totalPagar * $descuento / 100); // Total con el descuento aplicado
+
+        // Crear la venta con el total con descuento
+        $venta = Venta::create([
+            'id_cliente' => $request->input('id_cliente'),
+            'totalPagar' => $totalPagar,
+            'totalConDescuento' => $totalConDescuento, // Guardar el total con descuento
+            'fecha_venta' => Carbon::parse($request->input('fecha_venta'))->format('Y-m-d'), // Asegúrate de formatear correctamente la fecha
+            'estado' => $request->input('estado'),
+        ]);
+
+        // Registrar los detalles de la venta
+        foreach ($request->input('detalles') as $detalle) {
+            // Si hay descuento en cada detalle, lo calculamos
+            $descuentoDetalle = isset($detalle['descuento']) ? $detalle['descuento'] : 0;
+            $subtotal = ($detalle['cantidad'] * $detalle['precio_unitario']) -
+                        ($detalle['cantidad'] * $detalle['precio_unitario'] * $descuentoDetalle / 100);
+
+            // Verificar si el detalle contiene IGV y calcular si es necesario
+            $igv = isset($detalle['igv']) ? $detalle['igv'] : 0;
+
+            // Registrar cada detalle de venta
+            VentaDetalle::create([
+                'id_venta' => $venta->id_venta,
+                'id_producto' => $detalle['id_producto'],
+                'id_cliente' => $request->input('id_cliente'),
+                'cantidad' => $detalle['cantidad'],
+                'precio_unitario' => $detalle['precio_unitario'],
+                'descuento' => $descuentoDetalle, // Descuento por producto
+                'igv' => $igv,
+                'subtotal' => $subtotal, // Subtotal con el descuento aplicado
+                'cambio' => isset($detalle['cambio']) ? $detalle['cambio'] : 0, // Cambio (si se aplica)
+            ]);
+        }
+
+        // Redirigir con mensaje de éxito
+        return redirect()->route('ventas.index')->with('success', 'Venta registrada exitosamente.');
     }
-
-    // Redirigir con mensaje de éxito
-    return redirect()->route('ventas.index')->with('success', 'Venta registrada exitosamente.');
-}
-
 
     // Mostrar los detalles de una venta
     public function show($id)
