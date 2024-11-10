@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         // Crear la tabla _ventas_detalles
-        Schema::create('_ventas_detalles', function (Blueprint $table) {
+        Schema::create('ventas_detalles', function (Blueprint $table) {
             $table->id('id_detalle');
 
             // Claves foráneas

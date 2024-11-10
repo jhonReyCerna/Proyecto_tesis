@@ -9,24 +9,35 @@ class VentaDetalle extends Model
 {
     use HasFactory;
 
-    protected $table = '_ventas_detalles';
+    protected $table = 'ventas_detalles';
     protected $primaryKey = 'id_detalle';
+    protected $fillable = [
+        'id_venta',
+        'id_producto',
+        'id_cliente',
+        'cantidad',
+        'precio_unitario',
+        'descuento',
+        'igv',
+        'subtotal',
+        'cambio'
+    ];
 
-    // Relación con Producto
+    // Relación con el modelo Venta
+    public function venta()
+    {
+        return $this->belongsTo(Venta::class, 'id_venta');
+    }
+
+    // Relación con el modelo Producto
     public function producto()
     {
         return $this->belongsTo(Producto::class, 'id_producto');
     }
 
-    // Relación con Cliente
+    // Relación con el modelo Cliente
     public function cliente()
     {
         return $this->belongsTo(Cliente::class, 'id_cliente');
-    }
-
-    // Relación con Venta
-    public function venta()
-    {
-        return $this->belongsTo(Venta::class, 'id_venta');
     }
 }

@@ -1,35 +1,42 @@
-@extends('adminlte::page')
+@extends('layouts.app')
+
+@section('title', 'Detalles de la Venta')
 
 @section('content')
-<div class="container mt-5">
-    <h1 class="text-center mb-4">Venta Confirmada</h1>
-    <p><strong>Venta ID:</strong> {{ $venta->id_venta }}</p>
-    <p><strong>Cliente:</strong> {{ $venta->cliente->nombre }}</p>
-    <p><strong>Total a Pagar:</strong> ${{ number_format($venta->totalPagar, 2) }}</p>
-    <p><strong>Estado:</strong> {{ $venta->estado }}</p>
+    <h2>Detalles de la Venta</h2>
 
-    <h3>Detalles de la Venta</h3>
-    <div class="table-responsive">
-        <table class="table table-bordered table-striped">
-            <thead class="thead-light">
-                <tr>
-                    <th>Producto</th>
-                    <th>Cantidad</th>
-                    <th>Precio Unitario</th>
-                    <th>Subtotal</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($venta->detalles as $detalle)
+    <div class="card">
+        <div class="card-header bg-info text-white">
+            <h5>Venta #{{ $venta->id_venta }} - Cliente: {{ $venta->cliente->nombre }}</h5>
+        </div>
+        <div class="card-body">
+            <p><strong>Fecha de Venta:</strong> {{ $venta->fecha_venta->format('d/m/Y') }}</p>
+            <p><strong>Total a Pagar:</strong> S/ {{ number_format($venta->totalPagar, 2) }}</p>
+            <p><strong>Estado:</strong> {{ ucfirst($venta->estado) }}</p>
+
+            <h4>Detalles de los Productos</h4>
+            <table class="table table-striped">
+                <thead>
                     <tr>
-                        <td>{{ $detalle->producto->nombre }}</td>
-                        <td>{{ $detalle->cantidad }}</td>
-                        <td>{{ number_format($detalle->precio_unitario, 2) }}</td>
-                        <td>{{ number_format($detalle->subtotal, 2) }}</td>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Precio Unitario</th>
+                        <th>Subtotal</th>
                     </tr>
-                @endforeach
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach($venta->detalles as $detalle)
+                        <tr>
+                            <td>{{ $detalle->producto->nombre }}</td>
+                            <td>{{ $detalle->cantidad }}</td>
+                            <td>S/ {{ number_format($detalle->precio_unitario, 2) }}</td>
+                            <td>S/ {{ number_format($detalle->subtotal, 2) }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+
+            <a href="{{ route('ventas.index') }}" class="btn btn-secondary">Volver al listado</a>
+        </div>
     </div>
-</div>
 @endsection

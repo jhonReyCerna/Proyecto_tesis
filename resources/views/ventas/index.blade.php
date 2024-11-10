@@ -1,12 +1,11 @@
 @extends('adminlte::page')
 
-@section('title', 'Lista de Ventas')
 
-@section('content_header')
-    <h1>Lista de Ventas</h1>
-@stop
+@section('title', 'Listado de Ventas')
 
 @section('content')
+    <h2>Ventas Registradas</h2>
+
     @if(session('success'))
         <div class="alert alert-success">
             {{ session('success') }}
@@ -16,20 +15,19 @@
     <!-- Búsqueda sin recarga -->
     <form class="mb-3">
         <div class="input-group">
-            <input type="text" id="search" class="form-control" placeholder="Buscar por cliente, producto o fecha">
+            <input type="text" id="search" class="form-control" placeholder="Buscar por cliente, total o estado">
         </div>
     </form>
 
-    <a href="{{ route('ventas.create') }}" class="btn btn-primary mb-3">Registrar Nueva Venta</a>
+    <a href="{{ route('ventas.create') }}" class="btn btn-primary mb-3">Agregar Venta</a>
 
     <div class="card">
         <div class="card-body">
-            <table class="table table-bordered table-striped">
+            <table class="table table-striped table-bordered">
                 <thead>
                     <tr>
-                        <th>ID</th>
                         <th>Cliente</th>
-                        <th>Total</th>
+                        <th>Total a Pagar</th>
                         <th>Fecha</th>
                         <th>Estado</th>
                         <th>Acciones</th>
@@ -38,21 +36,22 @@
                 <tbody id="ventas-table">
                     @foreach($ventas as $venta)
                         <tr>
-                            <td>{{ $venta->id_venta }}</td>
                             <td>{{ $venta->cliente->nombre }}</td>
-                            <td>{{ $venta->totalPagar }}</td>
-                            <td>{{ $venta->fecha }}</td>
-                            <td>{{ $venta->estado }}</td>
+                            <td>{{ number_format($venta->totalPagar, 2, ',', '.') }}</td> <!-- Formateo del total -->
+                            <td>{{ \Carbon\Carbon::parse($venta->fecha_venta)->format('d/m/Y') }}</td>
                             <td>
-                                <!-- Enlace a los detalles de la venta -->
-                                <a href="{{ route('ventas.show', ['venta' => $venta->id_venta]) }}" class="btn btn-info btn-sm">Ver</a>
-
-                                <!-- Enlace para editar la venta -->
-                                <a href="{{ route('ventas.edit', ['venta' => $venta->id_venta]) }}" class="btn btn-warning btn-sm">Editar</a>
-
-
-                                <!-- Formulario para eliminar la venta con SweetAlert -->
-                                <form action="{{ route('ventas.destroy', ['venta' => $venta->id_venta]) }}" method="POST" style="display:inline;" class="delete-form">
+                                @if($venta->estado == 'Completada')
+                                    <span class="badge bg-success">{{ ucfirst($venta->estado) }}</span>
+                                @elseif($venta->estado == 'Pendiente')
+                                    <span class="badge bg-warning text-dark">{{ ucfirst($venta->estado) }}</span>
+                                @else
+                                    <span class="badge bg-danger">{{ ucfirst($venta->estado) }}</span>
+                                @endif
+                            </td>
+                            <td>
+                                <a href="{{ route('ventas.show', $venta->id_venta) }}" class="btn btn-info btn-sm">Ver</a>
+                                <a href="{{ route('ventas.edit', $venta->id_venta) }}" class="btn btn-warning btn-sm">Editar</a>
+                                <form action="{{ route('ventas.destroy', $venta->id_venta) }}" method="POST" style="display:inline;" class="delete-form">
                                     @csrf
                                     @method('DELETE')
                                     <button type="button" class="btn btn-danger btn-sm delete-btn">Eliminar</button>
@@ -63,11 +62,9 @@
                 </tbody>
             </table>
 
-            <!-- Paginación -->
             <div class="d-flex justify-content-center">
                 {{ $ventas->links() }}
             </div>
-
         </div>
     </div>
 
@@ -100,16 +97,16 @@
             const rows = document.querySelectorAll('#ventas-table tr');
 
             rows.forEach(function(row) {
-                const cliente = row.cells[1].textContent.toLowerCase();
-                const fecha = row.cells[3].textContent.toLowerCase();
-                const estado = row.cells[4].textContent.toLowerCase();
+                const cliente = row.cells[0].textContent.toLowerCase();
+                const total = row.cells[1].textContent.toLowerCase();
+                const estado = row.cells[3].textContent.toLowerCase();
 
-                if (cliente.includes(searchValue) || fecha.includes(searchValue) || estado.includes(searchValue)) {
-                    row.style.display = ''; // Mostrar fila
+                if (cliente.includes(searchValue) || total.includes(searchValue) || estado.includes(searchValue)) {
+                    row.style.display = '';
                 } else {
-                    row.style.display = 'none'; // Ocultar fila
+                    row.style.display = 'none';
                 }
             });
         });
     </script>
-@stop
+@endsection

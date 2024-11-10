@@ -3,106 +3,103 @@
 namespace App\Http\Controllers;
 
 use App\Models\VentaDetalle;
+use App\Models\Venta;
+use App\Models\Producto;
 use Illuminate\Http\Request;
 
 class VentaDetalleController extends Controller
 {
-    // Mostrar todos los detalles de ventas
+    // Constructor con middleware para proteger las rutas si es necesario (ejemplo autenticación)
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
+    // Mostrar todos los detalles de las ventas
     public function index()
     {
-        // Obtener los detalles de ventas paginados (10 por página, por ejemplo)
-        $ventaDetalles = VentaDetalle::paginate(10);
-
-        // Pasar la variable a la vista
-        return view('ventadetalles.index', compact('ventaDetalles'));
+        $detalles = VentaDetalle::with('venta', 'producto')->get(); // Traer detalles con las relaciones
+        return response()->json($detalles);
     }
 
-    // Mostrar el formulario para crear un nuevo detalle de venta
-    public function create()
-    {
-        // Pasar la variable a la vista
-        return view('ventadetalles.create', );
-    }
-
-    // Guardar un nuevo detalle de venta
-    public function store(Request $request)
-    {
-        // Validar los datos del formulario
-        $validated = $request->validate([
-            'id_venta' => 'required|exists:ventas,id_venta',
-            'id_producto' => 'required|exists:productos,id_producto',
-            'id_cliente' => 'required|exists:clientes,id_cliente',
-            'cantidad' => 'required|integer|min:1',
-            'precio_unitario' => 'required|numeric|min:0',
-            'descuento' => 'nullable|numeric|min:0',
-            'igv' => 'nullable|numeric|min:0',
-            'subtotal' => 'required|numeric|min:0',
-            'cambio' => 'nullable|numeric|min:0',
-        ]);
-
-        // Crear el nuevo detalle de venta
-        VentaDetalle::create($validated);
-
-        // Redirigir a la lista de detalles de ventas con un mensaje de éxito
-        return redirect()->route('ventadetalles.index')->with('success', 'Detalle de venta creado con éxito.');
-    }
-
-    // Mostrar el detalle de una venta específica
+    // Mostrar los detalles de una venta específica
     public function show($id)
     {
-        // Buscar el detalle de venta por su id
-        $ventaDetalle = VentaDetalle::findOrFail($id);
-
-        // Pasar la variable a la vista
-        return view('ventadetalles.show', compact('ventaDetalle'));
+        $detalle = VentaDetalle::with('venta', 'producto')->findOrFail($id);
+        return response()->json($detalle);
     }
 
-    // Mostrar el formulario para editar un detalle de venta
-    public function edit($id)
+    // Almacenar un nuevo detalle de venta
+    public function store(Request $request)
     {
-        // Buscar el detalle de venta por su id
-        $ventaDetalle = VentaDetalle::findOrFail($id);
-
-        // Pasar la variable a la vista
-        return view('ventadetalles.edit', compact('ventaDetalle'));
-    }
-
-    // Actualizar un detalle de venta
-    public function update(Request $request, $id)
-    {
-        // Validar los datos del formulario
-        $validated = $request->validate([
+        $request->validate([
             'id_venta' => 'required|exists:ventas,id_venta',
             'id_producto' => 'required|exists:productos,id_producto',
-            'id_cliente' => 'required|exists:clientes,id_cliente',
-            'cantidad' => 'required|integer|min:1',
-            'precio_unitario' => 'required|numeric|min:0',
-            'descuento' => 'nullable|numeric|min:0',
-            'igv' => 'nullable|numeric|min:0',
-            'subtotal' => 'required|numeric|min:0',
-            'cambio' => 'nullable|numeric|min:0',
+            'cantidad' => 'required|integer',
+            'precio_unitario' => 'required|numeric',
+            'descuento' => 'nullable|numeric',
+            'igv' => 'nullable|numeric',
+            'subtotal' => 'required|numeric',
+            'cambio' => 'nullable|numeric',
         ]);
 
-        // Buscar el detalle de venta por su id
-        $ventaDetalle = VentaDetalle::findOrFail($id);
+        $detalle = new VentaDetalle([
+            'id_venta' => $request->id_venta,
+            'id_producto' => $request->id_producto,
+            'cantidad' => $request->cantidad,
+            'precio_unitario' => $request->precio_unitario,
+            'descuento' => $request->descuento,
+            'igv' => $request->igv,
+            'subtotal' => $request->subtotal,
+            'cambio' => $request->cambio,
+        ]);
 
-        // Actualizar el detalle de venta
-        $ventaDetalle->update($validated);
+        $detalle->save();
 
-        // Redirigir a la lista de detalles de ventas con un mensaje de éxito
-        return redirect()->route('ventadetalles.index')->with('success', 'Detalle de venta actualizado con éxito.');
+        return response()->json([
+            'message' => 'Detalle de venta creado exitosamente',
+            'detalle' => $detalle
+        ], 201);
+    }
+
+    // Actualizar un detalle de venta existente
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'id_venta' => 'required|exists:ventas,id_venta',
+            'id_producto' => 'required|exists:productos,id_producto',
+            'cantidad' => 'required|integer',
+            'precio_unitario' => 'required|numeric',
+            'descuento' => 'nullable|numeric',
+            'igv' => 'nullable|numeric',
+            'subtotal' => 'required|numeric',
+            'cambio' => 'nullable|numeric',
+        ]);
+
+        $detalle = VentaDetalle::findOrFail($id);
+        $detalle->update([
+            'id_venta' => $request->id_venta,
+            'id_producto' => $request->id_producto,
+            'cantidad' => $request->cantidad,
+            'precio_unitario' => $request->precio_unitario,
+            'descuento' => $request->descuento,
+            'igv' => $request->igv,
+            'subtotal' => $request->subtotal,
+            'cambio' => $request->cambio,
+        ]);
+
+        return response()->json([
+            'message' => 'Detalle de venta actualizado exitosamente',
+            'detalle' => $detalle
+        ]);
     }
 
     // Eliminar un detalle de venta
     public function destroy($id)
     {
-        // Buscar el detalle de venta por su id
-        $ventaDetalle = VentaDetalle::findOrFail($id);
+        $detalle = VentaDetalle::findOrFail($id);
+        $detalle->delete();
 
-        // Eliminar el detalle de venta
-        $ventaDetalle->delete();
-
-        // Redirigir a la lista de detalles de ventas con un mensaje de éxito
-        return redirect()->route('ventadetalles.index')->with('success', 'Detalle de venta eliminado con éxito.');
+        return response()->json(['message' => 'Detalle de venta eliminado exitosamente']);
     }
 }

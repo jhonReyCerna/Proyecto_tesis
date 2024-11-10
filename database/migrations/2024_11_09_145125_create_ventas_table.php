@@ -13,7 +13,7 @@ return new class extends Migration
             $table->id('id_venta');
             $table->unsignedBigInteger('id_cliente');
             $table->decimal('totalPagar', 10, 2);
-            $table->date('fecha');
+            $table->date('fecha_venta');
             $table->string('estado', 20);
             $table->timestamps();
 

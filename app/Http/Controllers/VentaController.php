@@ -1,135 +1,134 @@
 <?php
 
+
 namespace App\Http\Controllers;
 
 use App\Models\Venta;
+use App\Models\VentaDetalle;
 use App\Models\Cliente;
 use App\Models\Producto;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class VentaController extends Controller
 {
-    /**
-     * Mostrar una lista de todas las ventas con los clientes relacionados.
-     */
+    // Mostrar todas las ventas
     public function index()
-    {
-        // Paginación y carga de relaciones para optimizar consultas
-        $ventas = Venta::with('cliente')->paginate(10);
-        return view('ventas.index', compact('ventas'));
-    }
+{
+  
+    // Cargar ventas con relaciones y aplicar paginación
+    $ventas = Venta::with('cliente', 'detalles.producto')->paginate(10); // 10 ventas por página
+    return view('ventas.index', compact('ventas'));
+}
 
-    /**
-     * Mostrar el formulario para crear una nueva venta.
-     */
+    // Mostrar el formulario para crear una nueva venta
     public function create()
     {
-        // Obtener todos los clientes y productos para el formulario
         $clientes = Cliente::all();
         $productos = Producto::all();
         return view('ventas.create', compact('clientes', 'productos'));
     }
 
-    /**
-     * Almacenar una nueva venta en la base de datos.
-     */
+    // Guardar una nueva venta
     public function store(Request $request)
-    {
-        // Validar los datos del formulario
-        $request->validate([
-            'id_cliente' => 'required|exists:clientes,id_cliente',
-            'fecha' => 'required|date', // Cambiar 'fecha_venta' por 'fecha'
-            'productos' => 'required|array|min:1',  // Debe haber al menos un producto
-            'productos.*.id_producto' => 'required|exists:productos,id_producto',
-            'productos.*.cantidad' => 'required|integer|min:1',
+{
+    // Validar los datos recibidos
+    $validated = $request->validate([
+        'id_cliente' => 'required|exists:clientes,id_cliente',
+        'totalPagar' => 'required|numeric',
+        'fecha_venta' => 'required|date',
+        'estado' => 'required|string',
+        'descuento' => 'nullable|numeric|min:0|max:100', // Validación del descuento
+        'detalles' => 'required|array',
+        'detalles.*.id_producto' => 'required|exists:productos,id_producto',
+        'detalles.*.cantidad' => 'required|numeric|min:1',
+        'detalles.*.precio_unitario' => 'required|numeric|min:0',
+    ]);
+
+    // Obtener los datos del formulario
+    $descuento = $request->input('descuento', 0); // Valor por defecto 0 si no se proporciona
+
+    // Calcular el total con descuento
+    $totalPagar = $request->input('totalPagar');
+    $totalConDescuento = $totalPagar - ($totalPagar * $descuento / 100);
+
+    // Crear la venta
+    $venta = Venta::create([
+        'id_cliente' => $request->input('id_cliente'),
+        'totalPagar' => $totalPagar,
+        'totalConDescuento' => $totalConDescuento, // Guardar el total con descuento
+        'fecha_venta' => Carbon::parse($request->input('fecha_venta'))->format('Y-m-d'), // Asegúrate de formatear correctamente la fecha
+        'estado' => $request->input('estado'),
+    ]);
+
+    // Registrar los detalles de la venta
+    foreach ($request->input('detalles') as $detalle) {
+        // Si hay descuento en cada detalle, lo calculamos
+        $descuentoDetalle = $detalle['descuento'] ?? 0;
+        $subtotal = ($detalle['cantidad'] * $detalle['precio_unitario']) -
+                    ($detalle['cantidad'] * $detalle['precio_unitario'] * $descuentoDetalle / 100);
+
+        VentaDetalle::create([
+            'id_venta' => $venta->id_venta,
+            'id_producto' => $detalle['id_producto'],
+            'id_cliente' => $request->input('id_cliente'),
+            'cantidad' => $detalle['cantidad'],
+            'precio_unitario' => $detalle['precio_unitario'],
+            'descuento' => $descuentoDetalle, // Descuento por producto
+            'igv' => $detalle['igv'] ?? 0,
+            'subtotal' => $subtotal, // Subtotal con el descuento aplicado
+            'cambio' => $detalle['cambio'] ?? 0,
         ]);
-
-        // Crear la venta
-        $venta = new Venta();
-        $venta->id_cliente = $request->id_cliente;
-        $venta->fecha = $request->fecha;  // Cambiar 'fecha_venta' por 'fecha'
-        $venta->totalPagar = $this->calcularTotal($request->productos);
-        $venta->estado = 'Pendiente';  // Estado inicial
-        $venta->save();
-
-        // Guardar los productos de la venta
-        foreach ($request->productos as $producto) {
-            $productoDetalles = Producto::find($producto['id_producto']);
-            $venta->productos()->attach($producto['id_producto'], [
-                'cantidad' => $producto['cantidad'],
-                'precio' => $productoDetalles->precio
-            ]);
-        }
-
-        // Redirigir al detalle de la venta recién creada
-        return redirect()->route('ventas.show', ['venta' => $venta->id])->with('success', 'Venta realizada con éxito');
     }
 
-    /**
-     * Mostrar los detalles de una venta específica.
-     */
+    // Redirigir con mensaje de éxito
+    return redirect()->route('ventas.index')->with('success', 'Venta registrada exitosamente.');
+}
+
+
+    // Mostrar los detalles de una venta
     public function show($id)
     {
-        $venta = Venta::with('detalles.producto', 'cliente')->findOrFail($id);
+        $venta = Venta::with('cliente', 'detalles.producto')->findOrFail($id);
         return view('ventas.show', compact('venta'));
     }
 
-    /**
-     * Mostrar el formulario para editar una venta.
-     */
+    // Formulario para editar una venta
     public function edit($id)
     {
-        $venta = Venta::with('detalles.producto')->findOrFail($id);
+        $venta = Venta::findOrFail($id);
         $clientes = Cliente::all();
-        return view('ventas.edit', compact('venta', 'clientes'));
+        $productos = Producto::all();
+        return view('ventas.edit', compact('venta', 'clientes', 'productos'));
     }
 
-    /**
-     * Actualizar una venta en la base de datos.
-     */
+    // Actualizar una venta
     public function update(Request $request, $id)
     {
-        // Validar los datos del formulario
         $request->validate([
             'id_cliente' => 'required|exists:clientes,id_cliente',
-            'fecha' => 'required|date',
-            'estado' => 'required|string|max:20',
+            'totalPagar' => 'required|numeric',
+            'fecha_venta' => 'required|date',
+            'estado' => 'required|string',
         ]);
 
         $venta = Venta::findOrFail($id);
-
-        // Actualizar la venta
         $venta->update([
             'id_cliente' => $request->id_cliente,
-            'fecha' => $request->fecha,
+            'totalPagar' => $request->totalPagar,
+            'fecha_venta' => $request->fecha_venta,
             'estado' => $request->estado,
         ]);
 
-        // Redirigir al detalle de la venta actualizada
-        return redirect()->route('ventas.show', ['venta' => $venta->id])->with('success', 'Venta actualizada con éxito');
+        return redirect()->route('ventas.index')->with('success', 'Venta actualizada con éxito.');
     }
 
-    /**
-     * Eliminar una venta de la base de datos.
-     */
+    // Eliminar una venta
     public function destroy($id)
     {
         $venta = Venta::findOrFail($id);
         $venta->delete();
 
-        return redirect()->route('ventas.index')->with('success', 'Venta eliminada con éxito');
-    }
-
-    /**
-     * Función para calcular el total de la venta con base en los productos.
-     */
-    private function calcularTotal($productos)
-    {
-        $total = 0;
-        foreach ($productos as $producto) {
-            $productoDetalles = Producto::find($producto['id_producto']);
-            $total += $productoDetalles->precio * $producto['cantidad'];
-        }
-        return $total;
+        return redirect()->route('ventas.index')->with('success', 'Venta eliminada con éxito.');
     }
 }
