@@ -108,4 +108,24 @@ class VentaController extends Controller
         $venta->delete();
         return redirect()->route('ventas.index');
     }
+
+    public function buscarClientePorDni($dni)
+    {
+        // Buscar el cliente por DNI
+        $cliente = Cliente::where('dni', $dni)->first();
+
+        if ($cliente) {
+            // Retornar la información del cliente si se encuentra
+            return response()->json([
+                'success' => true,
+                'cliente' => $cliente
+            ]);
+        } else {
+            // Si no se encuentra el cliente
+            return response()->json([
+                'success' => false,
+                'message' => 'Cliente no encontrado.'
+            ]);
+        }
+    }
 }

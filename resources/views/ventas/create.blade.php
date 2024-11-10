@@ -19,63 +19,76 @@
 
     <form id="ventaForm" action="{{ route('ventas.store') }}" method="POST">
         @csrf
-
-        <div class="card">
+        <div class="card shadow-sm">
             <div class="card-body">
                 <!-- Información de la venta -->
-                <div class="mb-3">
-                    <label for="id_cliente" class="form-label">Cliente</label>
-                    <select name="id_cliente" id="id_cliente" class="form-control">
-                        @foreach($clientes as $cliente)
-                            <option value="{{ $cliente->id_cliente }}">{{ $cliente->nombre }}</option>
-                        @endforeach
-                    </select>
+                <div class="row mb-4">
+                    <!-- Campo Cliente -->
+                    <div class="col-md-6">
+                        <label for="id_cliente" class="form-label">Cliente</label>
+                        <select name="id_cliente" id="id_cliente" class="form-control">
+                            <option value="" disabled selected>Seleccionar Cliente</option>
+                            @foreach($clientes as $cliente)
+                                <option value="{{ $cliente->id_cliente }}">{{ $cliente->nombre }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Campo Buscar por DNI -->
+                    <div class="col-md-6">
+                        <label for="dni_cliente" class="form-label">Buscar por DNI</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="dni_cliente" name="dni_cliente" placeholder="Ingrese DNI">
+                            <button class="btn btn-primary" type="button" id="buscarDNI">Buscar</button>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="mb-3">
+                <div class="mb-4">
                     <label for="fecha_venta" class="form-label">Fecha de Venta</label>
                     <input type="date" name="fecha_venta" id="fecha_venta" class="form-control" required>
                 </div>
 
-                <div class="mb-3">
-                    <label for="estado" class="form-label">Estado</label>
-                    <select name="estado" id="estado" class="form-control">
-                        <option value="Pendiente">Pendiente</option>
-                        <option value="Pagado">Pagado</option>
-                    </select>
-                </div>
-
-                <!-- Información de los productos (detalles) -->
+                <!-- Productos (detalles de la venta) -->
                 <div id="productos-container">
-                    <div class="producto mb-3">
-                        <label for="id_producto[]" class="form-label">Producto</label>
-                        <select name="productos[0][id_producto]" class="form-control id_producto">
+                    <div class="producto mb-4">
+                        <label for="id_producto[]" class="form-label">Producto</label >
+                        <select name="productos[0][id_producto]" class="form-control">
+                            <option value="" disabled selected>Seleccionar Producto</option>
                             @foreach($productos as $producto)
                                 <option value="{{ $producto->id_producto }}">{{ $producto->nombre }}</option>
                             @endforeach
                         </select>
 
                         <label for="cantidad[]" class="form-label">Cantidad</label>
-                        <input type="number" name="productos[0][cantidad]" class="form-control cantidad" required>
+                        <input type="number" name="productos[0][cantidad]" class="form-control" required>
 
                         <label for="precio_unitario[]" class="form-label">Precio Unitario</label>
-                        <input type="number" name="productos[0][precio_unitario]" class="form-control precio_unitario" required>
+                        <input type="number" name="productos[0][precio_unitario]" class="form-control" required>
 
                         <label for="descuento[]" class="form-label">Descuento</label>
-                        <input type="number" name="productos[0][descuento]" class="form-control descuento">
+                        <input type="number" name="productos[0][descuento]" class="form-control">
 
                         <label for="igv[]" class="form-label">IGV</label>
-                        <input type="number" name="productos[0][igv]" class="form-control igv">
+                        <input type="number" name="productos[0][igv]" class="form-control">
 
-                        <button type="button" class="btn btn-danger eliminar-producto">Eliminar Producto</button>
+                        <button type="button" class="btn btn-danger eliminar-producto mt-2">Eliminar Producto</button>
                     </div>
                 </div>
 
                 <button type="button" class="btn btn-primary" id="agregar-producto">Agregar Producto</button>
             </div>
 
-            <div class="card-footer">
-                <button type="submit" class="btn btn-primary" id="guardarBtn">Guardar Venta</button>
+            <div class="mb-4">
+                <label for="estado" class="form-label">Estado</label>
+                <select name="estado" id="estado" class="form-control">
+                    <option value="Pendiente">Pendiente</option>
+                    <option value="Pagado">Pagado</option>
+                </select>
+            </div>
+
+            <div class="card-footer d-flex justify-content-between">
+                <button type="submit" class="btn btn-success" id="guardarBtn">Guardar Venta</button>
                 <a href="{{ route('ventas.index') }}" class="btn btn-secondary">Cancelar</a>
             </div>
         </div>
@@ -83,6 +96,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        // Confirmación antes de guardar la venta
         document.getElementById('guardarBtn').addEventListener('click', function(event) {
             event.preventDefault();
 
@@ -107,28 +121,28 @@
             var container = document.getElementById('productos-container');
             var count = container.getElementsByClassName('producto').length;
             var newProduct = document.createElement('div');
-            newProduct.classList.add('producto', 'mb-3');
+            newProduct.classList.add('producto', 'mb-4');
             newProduct.innerHTML = `
                 <label for="id_producto[]" class="form-label">Producto</label>
-                <select name="productos[${count}][id_producto]" class="form-control id_producto">
+                <select name="productos[${count}][id_producto]" class="form-control">
                     @foreach($productos as $producto)
                         <option value="{{ $producto->id_producto }}">{{ $producto->nombre }}</option>
                     @endforeach
                 </select>
 
                 <label for="cantidad[]" class="form-label">Cantidad</label>
-                <input type="number" name="productos[${count}][cantidad]" class="form-control cantidad" required>
+                <input type="number" name="productos[${count}][cantidad]" class="form-control" required>
 
                 <label for="precio_unitario[]" class="form-label">Precio Unitario</label>
-                <input type="number" name="productos[${count}][precio_unitario]" class="form-control precio_unitario" required>
+                <input type="number" name="productos[${count}][precio_unitario]" class="form-control" required>
 
                 <label for="descuento[]" class="form-label">Descuento</label>
-                <input type="number" name="productos[${count}][descuento]" class="form-control descuento">
+                <input type="number" name="productos[${count}][descuento]" class="form-control">
 
                 <label for="igv[]" class="form-label">IGV</label>
-                <input type="number" name="productos[${count}][igv]" class="form-control igv">
+                <input type="number" name="productos[${count}][igv]" class="form-control">
 
-                <button type="button" class="btn btn-danger eliminar-producto">Eliminar Producto</button>
+                <button type="button" class="btn btn-danger eliminar-producto mt-2">Eliminar Producto</button>
             `;
             container.appendChild(newProduct);
         });
@@ -139,5 +153,66 @@
                 event.target.parentElement.remove();
             }
         });
-    </script>
+
+
+    // Función de búsqueda por DNI con AJAX
+     // Función de búsqueda por DNI con AJAX
+     document.getElementById('buscarDNI').addEventListener('click', function () {
+        var dni = document.getElementById('dni_cliente').value;
+        if (dni) {
+            // Realizamos una petición AJAX para buscar al cliente por DNI
+            fetch(`/venta/buscar-cliente/${dni}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Si se encuentra el cliente, completar los campos
+                        var cliente = data.cliente;
+                        document.getElementById('id_cliente').value = cliente.id_cliente; // Asigna el ID del cliente
+
+                        // Mostrar alerta de cliente encontrado
+                        Swal.fire({
+                            title: 'Cliente Encontrado!',
+                            text: `El cliente ${cliente.nombre} ha sido encontrado.`,
+                            icon: 'success',
+                            showConfirmButton: false,
+                            timer: 2000, // Duración de la alerta en milisegundos
+                            willClose: () => {
+                                // Puedes agregar aquí cualquier acción después de que la alerta se cierre
+                            }
+                        });
+                    } else {
+                        // Si no se encuentra el cliente
+                        Swal.fire({
+                            title: 'Cliente No Encontrado',
+                            text: 'No se ha encontrado un cliente con ese DNI.',
+                            icon: 'error',
+                            showConfirmButton: false,
+                            timer: 2000, // Duración de la alerta
+                            willClose: () => {
+                                // Aquí también puedes agregar alguna acción posterior si lo deseas
+                            }
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error en la búsqueda del cliente:', error);
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Hubo un error al buscar el cliente.',
+                        icon: 'error',
+                        showConfirmButton: true
+                    });
+                });
+        } else {
+            Swal.fire({
+                title: 'Por Favor',
+                text: 'Por favor ingresa un DNI.',
+                icon: 'warning',
+                showConfirmButton: true
+            });
+        }
+    });
+</script>
+
+
 @stop
