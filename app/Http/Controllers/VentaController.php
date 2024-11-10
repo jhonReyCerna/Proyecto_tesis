@@ -12,10 +12,11 @@ class VentaController extends Controller
 {
     // Mostrar todas las ventas
     public function index()
-    {
-        $ventas = Venta::with('cliente')->get(); // Obtener todas las ventas con el cliente
-        return view('ventas.index', compact('ventas'));
-    }
+{
+    // Cambiar 'get()' por 'paginate()' para paginar las ventas con sus clientes
+    $ventas = Venta::with('cliente')->paginate(10); // 10 es el número de registros por página
+    return view('ventas.index', compact('ventas'));
+}
 
     // Crear una nueva venta
     public function create()
