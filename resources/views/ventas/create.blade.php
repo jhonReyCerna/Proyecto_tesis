@@ -16,6 +16,7 @@
                     <div class="form-group mb-4">
                         <label for="id_cliente" class="form-label">Cliente</label>
                         <select name="id_cliente" id="id_cliente" class="form-control select2" required>
+                            <option value="" disabled selected>Seleccionar cliente</option> <!-- Opción por defecto -->
                             @foreach($clientes as $cliente)
                                 <option value="{{ $cliente->id_cliente }}">{{ $cliente->nombre }}</option>
                             @endforeach
@@ -28,6 +29,7 @@
                             <div class="form-group">
                                 <label for="producto" class="form-label">Producto</label>
                                 <select name="detalles[0][id_producto]" class="form-control producto" required>
+                                    <option value="" disabled selected>Seleccionar producto</option> <!-- Opción por defecto -->
                                     @foreach($productos as $producto)
                                         <option value="{{ $producto->id_producto }}" data-precio="{{ $producto->precio }}">{{ $producto->nombre }}</option>
                                     @endforeach
