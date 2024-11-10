@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Carbon\Carbon;
 
 class Venta extends Model
 {
@@ -12,25 +11,16 @@ class Venta extends Model
 
     protected $table = 'ventas';
     protected $primaryKey = 'id_venta';
-    protected $fillable = [
-        'id_cliente',
-        'totalPagar',
-        'fecha_venta',
-        'estado'
-    ];
 
-    // Convertir automáticamente 'fecha_venta' a un objeto Carbon
-    protected $dates = ['fecha_venta']; // Esto le dice a Laravel que lo maneje como una fecha
-
-    // Relación con el modelo Cliente
-    public function cliente()
-    {
-        return $this->belongsTo(Cliente::class, 'id_cliente');
-    }
-
-    // Relación con el modelo VentaDetalle
+    // Relación con los detalles de la venta (productos vendidos)
     public function detalles()
     {
-        return $this->hasMany(VentaDetalle::class, 'id_venta');
+        return $this->hasMany(VentaDetalle::class, 'id_venta', 'id_venta');
+    }
+
+    // Relación con el cliente
+    public function cliente()
+    {
+        return $this->belongsTo(Cliente::class, 'id_cliente', 'id_cliente');
     }
 }

@@ -1,229 +1,95 @@
-@extends('adminlte::page')
-@section('title', 'Registrar Venta')
+<form action="{{ route('ventas.store') }}" method="POST">
+    @csrf
 
-@section('content')
-    <div class="container mt-5">
-        <h2 class="text-center text-info mb-4">Registrar Venta</h2>
-
-        <form action="{{ route('ventas.store') }}" method="POST" class="card p-4 rounded-lg shadow-lg">
-            @csrf
-            <div class="form-row">
-                <!-- Campo Cliente -->
-                <div class="form-group col-md-6">
-                    <label for="id_cliente" class="font-weight-bold text-muted">Cliente</label>
-                    <select name="id_cliente" id="id_cliente" class="form-control form-control-lg" required>
-                        <option value="" disabled selected>Seleccionar Cliente</option>
-                        @foreach($clientes as $cliente)
-                            <option value="{{ $cliente->id_cliente }}">{{ $cliente->nombre }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <!-- Campo DNI para búsqueda con botón Buscar -->
-                <div class="form-group col-md-6 ">
-                    <label for="dni" class="font-weight-bold text-muted mr-4">Buscar por DNI</label>
-                    <div class="input-group">
-                        <input type="text" name="dni" id="dni" class="form-control form-control-lg" placeholder="Ingrese DNI" />
-                        <div class="input-group-append">
-                            <button type="button" class="btn btn-info px-4" onclick="buscarPorDni()">Buscar</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="productos-container">
-                <div class="detalle-producto mb-4 p-4 border rounded-lg shadow-sm">
-                    <div class="form-group">
-                        <label for="producto" class="font-weight-bold text-muted">Producto</label>
-                        <select name="detalles[0][id_producto]" class="form-control producto form-control-lg" required>
-                            <option value="" disabled selected>Seleccionar Producto</option>
-                            @foreach($productos as $producto)
-                                <option value="{{ $producto->id_producto }}" data-precio="{{ $producto->precio }}">{{ $producto->nombre }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="cantidad" class="font-weight-bold text-muted">Cantidad</label>
-                        <input type="number" name="detalles[0][cantidad]" class="form-control form-control-lg cantidad" required min="1" oninput="actualizarTotalProducto(this)">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="precio_unitario" class="font-weight-bold text-muted">Precio Unitario</label>
-                        <input type="text" name="detalles[0][precio_unitario]" class="form-control form-control-lg precio_unitario" readonly>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="totalProducto" class="font-weight-bold text-muted">Total Producto</label>
-                        <input type="number" name="detalles[0][total]" class="form-control form-control-lg total_producto" readonly>
-                    </div>
-
-                    <button type="button" class="btn btn-danger btn-sm remove-producto">Eliminar Producto</button>
-                </div>
-            </div>
-
-            <button type="button" class="btn btn-outline-primary" id="add-producto">Agregar Producto</button>
-
-            <div class="form-group mt-4">
-                <label for="totalPagar" class="font-weight-bold text-muted">Total a Pagar</label>
-                <input type="number" name="totalPagar" id="totalPagar" class="form-control form-control-lg" required readonly>
-            </div>
-
-            <div class="form-group">
-                <label for="descuento" class="font-weight-bold text-muted">Descuento (%)</label>
-                <input type="number" name="descuento" id="descuento" class="form-control form-control-lg" step="0.01" min="0" max="100" oninput="calcularTotal()">
-            </div>
-
-            <div class="form-group">
-                <label for="totalConDescuento" class="font-weight-bold text-muted">Total con Descuento</label>
-                <input type="number" name="totalConDescuento" id="totalConDescuento" class="form-control form-control-lg" readonly>
-            </div>
-
-            <div class="form-group">
-                <label for="fecha_venta" class="font-weight-bold text-muted">Fecha de Venta</label>
-                <input type="date" name="fecha_venta" id="fecha_venta" class="form-control form-control-lg" required>
-            </div>
-
-            <div class="form-group">
-                <label for="estado" class="font-weight-bold text-muted">Estado</label>
-                <select name="estado" id="estado" class="form-control form-control-lg" required>
-                    <option value="Pendiente">Pendiente</option>
-                    <option value="Completada">Completada</option>
-                    <option value="Cancelada">Cancelada</option>
-                </select>
-            </div>
-
-            <div class="d-flex justify-content-end mt-4">
-                <button type="submit" class="btn btn-info px-5">Registrar Venta</button>
-            </div>
-        </form>
+    <!-- Información de la venta -->
+    <div>
+        <label for="id_cliente">Cliente</label>
+        <select name="id_cliente" id="id_cliente">
+            @foreach($clientes as $cliente)
+                <option value="{{ $cliente->id_cliente }}">{{ $cliente->nombre }}</option>
+            @endforeach
+        </select>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <div>
+        <label for="fecha_venta">Fecha de Venta</label>
+        <input type="date" name="fecha_venta" id="fecha_venta" required>
+    </div>
 
-    <script>
-        // Función para buscar cliente por DNI
-        async function buscarPorDni() {
-    let dni = document.getElementById('dni').value;
+    <div>
+        <label for="estado">Estado</label>
+        <select name="estado" id="estado">
+            <option value="Pendiente">Pendiente</option>
+            <option value="Pagado">Pagado</option>
+        </select>
+    </div>
 
-    // Verificar que el DNI tiene 8 dígitos
-    if (dni.length === 8) {
-        try {
-            // Realizar una solicitud AJAX al servidor para buscar al cliente
-            const response = await fetch(`/venta/buscar-cliente/${dni}`);
-            const data = await response.json();
+    <!-- Información de los productos (detalles) -->
+    <div id="productos-container">
+        <div class="producto">
+            <label for="id_producto[]">Producto</label>
+            <select name="productos[0][id_producto]" class="id_producto">
+                @foreach($productos as $producto)
+                    <option value="{{ $producto->id_producto }}">{{ $producto->nombre }}</option>
+                @endforeach
+            </select>
 
-            if (data.id_cliente) {
-                // Si se encuentra el cliente, mostrar un mensaje con SweetAlert2
-                Swal.fire({
-                    title: 'Cliente encontrado',
-                    text: `Cliente: ${data.nombre}`,
-                    icon: 'success',
-                    confirmButtonText: 'Aceptar'
-                });
+            <label for="cantidad[]">Cantidad</label>
+            <input type="number" name="productos[0][cantidad]" class="cantidad" required>
 
-                // Rellenar el campo del id_cliente con el valor encontrado
-                document.getElementById('id_cliente').value = data.id_cliente;
-            } else {
-                // Si no se encuentra el cliente, mostrar un mensaje de error
-                Swal.fire({
-                    title: 'Cliente no encontrado',
-                    text: 'Por favor verifica el DNI ingresado.',
-                    icon: 'error',
-                    confirmButtonText: 'Aceptar'
-                });
+            <label for="precio_unitario[]">Precio Unitario</label>
+            <input type="number" name="productos[0][precio_unitario]" class="precio_unitario" required>
 
-                // Limpiar el campo de cliente
-                document.getElementById('id_cliente').value = '';
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            Swal.fire({
-                title: 'Error',
-                text: 'Hubo un problema al buscar el cliente. Inténtalo de nuevo.',
-                icon: 'error',
-                confirmButtonText: 'Aceptar'
-            });
+            <label for="descuento[]">Descuento</label>
+            <input type="number" name="productos[0][descuento]" class="descuento">
+
+            <label for="igv[]">IGV</label>
+            <input type="number" name="productos[0][igv]" class="igv">
+
+            <button type="button" class="eliminar-producto">Eliminar Producto</button>
+        </div>
+    </div>
+
+    <button type="button" id="agregar-producto">Agregar Producto</button>
+    <button type="submit">Guardar Venta</button>
+</form>
+
+<script>
+    // Agregar un nuevo producto al formulario
+    document.getElementById('agregar-producto').addEventListener('click', function () {
+        var container = document.getElementById('productos-container');
+        var count = container.getElementsByClassName('producto').length;
+        var newProduct = document.createElement('div');
+        newProduct.classList.add('producto');
+        newProduct.innerHTML = `
+            <label for="id_producto[]">Producto</label>
+            <select name="productos[${count}][id_producto]" class="id_producto">
+                @foreach($productos as $producto)
+                    <option value="{{ $producto->id_producto }}">{{ $producto->nombre }}</option>
+                @endforeach
+            </select>
+
+            <label for="cantidad[]">Cantidad</label>
+            <input type="number" name="productos[${count}][cantidad]" class="cantidad" required>
+
+            <label for="precio_unitario[]">Precio Unitario</label>
+            <input type="number" name="productos[${count}][precio_unitario]" class="precio_unitario" required>
+
+            <label for="descuento[]">Descuento</label>
+            <input type="number" name="productos[${count}][descuento]" class="descuento">
+
+            <label for="igv[]">IGV</label>
+            <input type="number" name="productos[${count}][igv]" class="igv">
+
+            <button type="button" class="eliminar-producto">Eliminar Producto</button>
+        `;
+        container.appendChild(newProduct);
+    });
+
+    // Eliminar un producto
+    document.addEventListener('click', function (event) {
+        if (event.target.classList.contains('eliminar-producto')) {
+            event.target.parentElement.remove();
         }
-    } else {
-        // Si el DNI no es válido, mostrar un mensaje de advertencia
-        Swal.fire({
-            title: 'DNI Inválido',
-            text: 'Por favor ingrese un DNI válido de 8 dígitos.',
-            icon: 'warning',
-            confirmButtonText: 'Aceptar'
-        });
-    }
-}
-
-        // Calcular total con descuento
-        function calcularTotal() {
-            let totalPagar = 0;
-            document.querySelectorAll('.detalle-producto').forEach(function(item) {
-                let cantidad = parseFloat(item.querySelector('.cantidad').value);
-                let precio_unitario = parseFloat(item.querySelector('.precio_unitario').value);
-                let totalProducto = cantidad * precio_unitario;
-                item.querySelector('.total_producto').value = totalProducto.toFixed(2);
-
-                if (!isNaN(totalProducto)) {
-                    totalPagar += totalProducto;
-                }
-            });
-
-            let descuento = parseFloat(document.getElementById('descuento').value);
-            if (!isNaN(descuento)) {
-                let totalConDescuento = totalPagar - (totalPagar * descuento / 100);
-                document.getElementById('totalConDescuento').value = totalConDescuento.toFixed(2);
-                totalPagar = totalConDescuento;  // Actualizamos totalPagar con el valor con descuento
-            }
-
-            document.getElementById('totalPagar').value = totalPagar.toFixed(2);  // Mostrar total con descuento en "Total a Pagar"
-        }
-
-        // Función para actualizar el total del producto cuando se cambia la cantidad
-        function actualizarTotalProducto(cantidadInput) {
-            let productoItem = cantidadInput.closest('.detalle-producto');
-            let cantidad = parseFloat(cantidadInput.value);
-            let precioUnitario = parseFloat(productoItem.querySelector('.precio_unitario').value);
-            let totalProducto = cantidad * precioUnitario;
-
-            productoItem.querySelector('.total_producto').value = totalProducto.toFixed(2);
-            calcularTotal();
-        }
-
-        // Cambiar precio unitario y recalcular al seleccionar producto
-        document.addEventListener('change', function(e) {
-            if (e.target && e.target.classList.contains('producto')) {
-                let selectedOption = e.target.options[e.target.selectedIndex];
-                let precioUnitario = parseFloat(selectedOption.getAttribute('data-precio'));
-                let precioInput = e.target.closest('.detalle-producto').querySelector('.precio_unitario');
-                precioInput.value = precioUnitario.toFixed(2);
-                actualizarTotalProducto(e.target.closest('.detalle-producto').querySelector('.cantidad'));
-            }
-        });
-
-        // Agregar nuevo producto al formulario
-        document.getElementById('add-producto').addEventListener('click', function() {
-            let lastProductoItem = document.querySelector('.detalle-producto:last-child');
-            let newProductoItem = lastProductoItem.cloneNode(true);
-
-            // Limpiar los campos del nuevo producto
-            newProductoItem.querySelectorAll('input').forEach(input => input.value = '');
-            newProductoItem.querySelector('select').selectedIndex = 0;
-
-            // Agregar el nuevo producto al formulario
-            document.querySelector('.productos-container').appendChild(newProductoItem);
-
-            // Actualizar el total nuevamente
-            calcularTotal();
-        });
-
-        // Eliminar producto
-        document.addEventListener('click', function(e) {
-            if (e.target && e.target.classList.contains('remove-producto')) {
-                e.target.closest('.detalle-producto').remove();
-                calcularTotal();
-            }
-        });
-    </script>
-@endsection
+    });
+</script>

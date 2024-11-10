@@ -3,10 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Venta;
-use App\Models\VentaDetalle;
-use App\Models\Cliente;
 use App\Models\Producto;
-use Carbon\Carbon;
+use App\Models\Cliente;
+use App\Models\VentaDetalle;
 use Illuminate\Http\Request;
 
 class VentaController extends Controller
@@ -14,12 +13,11 @@ class VentaController extends Controller
     // Mostrar todas las ventas
     public function index()
     {
-        // Cargar ventas con relaciones y aplicar paginación
-        $ventas = Venta::with('cliente', 'detalles.producto')->paginate(10); // 10 ventas por página
+        $ventas = Venta::with('cliente')->get(); // Obtener todas las ventas con el cliente
         return view('ventas.index', compact('ventas'));
     }
 
-    // Mostrar el formulario para crear una nueva venta
+    // Crear una nueva venta
     public function create()
     {
         $clientes = Cliente::all();
@@ -29,76 +27,71 @@ class VentaController extends Controller
 
     // Guardar una nueva venta
     public function store(Request $request)
-    {
-        // Validar los datos recibidos
-        $validated = $request->validate([
-            'id_cliente' => 'required|exists:clientes,id_cliente',
-            'totalPagar' => 'required|numeric',
-            'fecha_venta' => 'required|date',
-            'estado' => 'required|string',
-            'descuento' => 'nullable|numeric|min:0|max:100', // Validación del descuento
-            'detalles' => 'required|array',
-            'detalles.*.id_producto' => 'required|exists:productos,id_producto',
-            'detalles.*.cantidad' => 'required|numeric|min:1',
-            'detalles.*.precio_unitario' => 'required|numeric|min:0',
-        ]);
+{
+    // Validar la información de la venta
+    $request->validate([
+        'id_cliente' => 'required|exists:clientes,id_cliente',
+        'fecha_venta' => 'required|date',
+        'estado' => 'required|in:Pendiente,Pagado',
+        'productos' => 'required|array|min:1',
+        'productos.*.id_producto' => 'required|exists:productos,id_producto',
+        'productos.*.cantidad' => 'required|integer|min:1',
+        'productos.*.precio_unitario' => 'required|numeric|min:0',
+    ]);
 
-        // Obtener los datos del formulario
-        $descuento = $request->input('descuento', 0); // Valor por defecto 0 si no se proporciona
+    // Crear la venta
+    $venta = new Venta();
+    $venta->id_cliente = $request->id_cliente;
+    $venta->fecha_venta = $request->fecha_venta;
+    $venta->estado = $request->estado;
+    $venta->totalPagar = 0; // Inicialmente es 0, se actualizará con los detalles
+    $venta->save();
 
-        // Calcular el total con descuento
-        $totalPagar = $request->input('totalPagar');
-        $totalConDescuento = $totalPagar - ($totalPagar * $descuento / 100); // Total con el descuento aplicado
+    // Crear los detalles de la venta
+    $totalPagar = 0;
+    foreach ($request->productos as $productoData) {
+        $producto = Producto::find($productoData['id_producto']);
+        $subtotal = $productoData['cantidad'] * $productoData['precio_unitario'];
+        $descuento = $productoData['descuento'];
+        $igv = $productoData['igv'];
+        $totalProducto = $subtotal - $descuento + $igv;
 
-        // Crear la venta con el total con descuento
-        $venta = Venta::create([
-            'id_cliente' => $request->input('id_cliente'),
-            'totalPagar' => $totalPagar,
-            'totalConDescuento' => $totalConDescuento, // Guardar el total con descuento
-            'fecha_venta' => Carbon::parse($request->input('fecha_venta'))->format('Y-m-d'), // Asegúrate de formatear correctamente la fecha
-            'estado' => $request->input('estado'),
-        ]);
+        // Guardar el detalle de la venta
+        $ventaDetalle = new VentaDetalle();
+        $ventaDetalle->id_venta = $venta->id_venta;
+        $ventaDetalle->id_producto = $productoData['id_producto'];
+        $ventaDetalle->id_cliente = $venta->id_cliente;
+        $ventaDetalle->cantidad = $productoData['cantidad'];
+        $ventaDetalle->precio_unitario = $productoData['precio_unitario'];
+        $ventaDetalle->descuento = $descuento;
+        $ventaDetalle->igv = $igv;
+        $ventaDetalle->subtotal = $subtotal;
+        $ventaDetalle->cambio = 0; // Puedes agregar lógica para calcular el cambio si es necesario
+        $ventaDetalle->save();
 
-        // Registrar los detalles de la venta
-        foreach ($request->input('detalles') as $detalle) {
-            // Si hay descuento en cada detalle, lo calculamos
-            $descuentoDetalle = isset($detalle['descuento']) ? $detalle['descuento'] : 0;
-            $subtotal = ($detalle['cantidad'] * $detalle['precio_unitario']) -
-                        ($detalle['cantidad'] * $detalle['precio_unitario'] * $descuentoDetalle / 100);
-
-            // Verificar si el detalle contiene IGV y calcular si es necesario
-            $igv = isset($detalle['igv']) ? $detalle['igv'] : 0;
-
-            // Registrar cada detalle de venta
-            VentaDetalle::create([
-                'id_venta' => $venta->id_venta,
-                'id_producto' => $detalle['id_producto'],
-                'id_cliente' => $request->input('id_cliente'),
-                'cantidad' => $detalle['cantidad'],
-                'precio_unitario' => $detalle['precio_unitario'],
-                'descuento' => $descuentoDetalle, // Descuento por producto
-                'igv' => $igv,
-                'subtotal' => $subtotal, // Subtotal con el descuento aplicado
-                'cambio' => isset($detalle['cambio']) ? $detalle['cambio'] : 0, // Cambio (si se aplica)
-            ]);
-        }
-
-        // Redirigir con mensaje de éxito
-        return redirect()->route('ventas.index')->with('success', 'Venta registrada exitosamente.');
+        // Acumulamos el total
+        $totalPagar += $totalProducto;
     }
 
-    // Mostrar los detalles de una venta
-    // En VentaController.php
+    // Actualizar el totalPagar de la venta
+    $venta->totalPagar = $totalPagar;
+    $venta->save();
+
+    // Redirigir con un mensaje de éxito
+    return redirect()->route('ventas.index')->with('success', 'Venta y productos guardados correctamente.');
+}
+
+
+    // Ver los detalles de una venta
     public function show($id)
     {
-        $venta = Venta::with('detalles.producto')->findOrFail($id);
+        // Cargar la venta con sus detalles y productos asociados
+        $venta = Venta::with('detalles.producto', 'cliente')->findOrFail($id);
 
         return view('ventas.show', compact('venta'));
     }
 
-
-
-    // Formulario para editar una venta
+    // Editar una venta (si es necesario)
     public function edit($id)
     {
         $venta = Venta::findOrFail($id);
@@ -107,49 +100,11 @@ class VentaController extends Controller
         return view('ventas.edit', compact('venta', 'clientes', 'productos'));
     }
 
-    // Actualizar una venta
-    public function update(Request $request, $id)
-    {
-        $request->validate([
-            'id_cliente' => 'required|exists:clientes,id_cliente',
-            'totalPagar' => 'required|numeric',
-            'fecha_venta' => 'required|date',
-            'estado' => 'required|string',
-        ]);
-
-        $venta = Venta::findOrFail($id);
-        $venta->update([
-            'id_cliente' => $request->id_cliente,
-            'totalPagar' => $request->totalPagar,
-            'fecha_venta' => $request->fecha_venta,
-            'estado' => $request->estado,
-        ]);
-
-        return redirect()->route('ventas.index')->with('success', 'Venta actualizada con éxito.');
-    }
-
     // Eliminar una venta
     public function destroy($id)
     {
         $venta = Venta::findOrFail($id);
         $venta->delete();
-
-        return redirect()->route('ventas.index')->with('success', 'Venta eliminada con éxito.');
+        return redirect()->route('ventas.index');
     }
-
-    // En el archivo VentaController.php
-    public function buscarClientePorDni($dni)
-    {
-        $cliente = Cliente::where('dni', $dni)->first();
-
-        if ($cliente) {
-            return response()->json([
-                'id_cliente' => $cliente->id_cliente,
-                'nombre' => $cliente->nombre
-            ]);
-        } else {
-            return response()->json(['message' => 'Cliente no encontrado'], 404);
-        }
-    }
-
 }
