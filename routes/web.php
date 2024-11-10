@@ -4,13 +4,13 @@ use App\Http\Controllers\AlmacenController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\CompraController;
-use App\Http\Controllers\GestionarVentaController;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\ProveedorController;
 use App\Http\Controllers\VentaController;
 use App\Http\Controllers\VentaDetalleController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade as PDF;
 
 Route::get('/', function () {
     return redirect('login');
@@ -139,6 +139,9 @@ Route::delete('venta/destroy/{venta}', [VentaController::class, 'destroy'])->nam
 Route::get('ventas/reporte', [VentaController::class, 'generarReportePDF'])->name('ventas.reporte');
 
 Route::get('venta/buscar-cliente/{dni}', [VentaController::class, 'buscarClientePorDni'])->name('ventas.buscarClientePorDni');
+
+Route::get('venta/{id}/factura', [VentaController::class, 'facturaPDF'])->name('ventas.factura');
+
 
 
 //----------------------------------------------------------------------------------------------------------

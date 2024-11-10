@@ -83,8 +83,9 @@
     <a href="#" class="btn btn-lg btn-success me-3">
         <i class="fas fa-print"></i> Imprimir Recibo
     </a>
-    <a href="#" class="btn btn-lg btn-danger">
-        <i class="fas fa-file-pdf"></i> Descargar PDF
+    <a href="{{ route('ventas.factura', $venta->id_venta) }}" class="btn btn-lg btn-danger">
+        <i class="fas fa-file-pdf"></i> Factura PDF
     </a>
+
 </div>
 @endsection

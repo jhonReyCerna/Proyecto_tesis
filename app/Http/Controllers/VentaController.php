@@ -6,6 +6,7 @@ use App\Models\Venta;
 use App\Models\Producto;
 use App\Models\Cliente;
 use App\Models\VentaDetalle;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
 class VentaController extends Controller
@@ -128,4 +129,16 @@ class VentaController extends Controller
             ]);
         }
     }
+
+    public function facturaPDF($id)
+{
+    // Obtener la venta con todos sus detalles
+    $venta = Venta::with('cliente', 'detalles.producto')->findOrFail($id);
+
+    // Generar el PDF con la vista 'factura'
+    $pdf = Pdf::loadView('ventas.factura', compact('venta'));
+
+    // Descargar el PDF
+    return $pdf->download('factura_venta_'.$venta->id_venta.'.pdf');
+}
 }
