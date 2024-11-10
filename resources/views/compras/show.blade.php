@@ -1,36 +1,61 @@
 @extends('adminlte::page')
-
-@section('title', 'Detalles de Compra')
-
-@section('content_header')
-    <h1>Detalles de Compra</h1>
-@stop
+@section('title', 'Detalle de Venta')
 
 @section('content')
-    <div class="card">
-        <div class="card-body">
-            <h4>ID de Compra: {{ $compra->id_compra }}</h4>
-            <h4>Producto: {{ $compra->producto->nombre }}</h4>
-            <h4>Proveedor: {{ $compra->proveedor->nombre }}</h4>
-            <h4>Cantidad: {{ $compra->cantidad }}</h4>
-            <h4>Fecha: 
-                @if ($compra->fecha)
-                    {{ \Carbon\Carbon::parse($compra->fecha)->format('Y-m-d') }}
-                @else
-                    N/A
-                @endif
-            </h4>
-            <h4>Almacén: {{ $compra->almacen->nombre }}</h4>
-            <h4>Precio Unitario: {{ number_format($compra->precio_unitario, 2) }}</h4>
-            <h4>Total: {{ number_format($compra->total, 2) }}</h4>
-            <h4>Estado: 
-                @if($compra->estado == 'pendiente')
-                    Completada
-                @else
-                    {{ ucfirst($compra->estado) }}
-                @endif
-            </h4>
+<div class="container mt-5">
+    <h2 class="text-center text-info mb-4">Detalle de la Venta #{{ $venta->id }}</h2>
+
+    <div class="card p-4 rounded-lg shadow-lg">
+        <!-- Información del Cliente -->
+        <h4 class="text-primary">Información del Cliente</h4>
+        <ul class="list-group list-group-flush mb-4">
+            <li class="list-group-item"><strong>Nombre del Cliente:</strong> {{ $venta->cliente->nombre ?? 'N/A' }}</li>
+            <li class="list-group-item"><strong>DNI:</strong> {{ $venta->cliente->dni ?? 'N/A' }}</li>
+        </ul>
+
+        <!-- Detalles de Productos -->
+        <h4 class="text-primary">Detalles de Productos</h4>
+        <table class="table table-bordered table-hover">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Precio Unitario</th>
+                    <th>Total Producto</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse ($venta->detalles as $detalle)
+                <tr>
+                    <td>{{ $detalle->producto->nombre ?? 'N/A' }}</td>
+                    <td>{{ $detalle->cantidad }}</td>
+                    <td>{{ number_format($detalle->precio_unitario, 2) }} S/</td>
+                    <td>{{ number_format($detalle->total, 2) }} S/</td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="4" class="text-center">No hay productos en esta venta</td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
+
+        <!-- Resumen de Venta -->
+        <h4 class="text-primary mt-4">Resumen de Venta</h4>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item"><strong>Total a Pagar:</strong> {{ number_format($venta->totalPagar ?? 0, 2) }} S/</li>
+            <li class="list-group-item"><strong>Descuento Aplicado:</strong> {{ $venta->descuento ?? 0 }}%</li>
+            <li class="list-group-item"><strong>Total con Descuento:</strong> {{ number_format($venta->totalConDescuento ?? 0, 2) }} S/</li>
+            <li class="list-group-item">
+                <p><strong>Fecha de Venta:</strong> {{ $venta->fecha_venta->format('d/m/Y') }}</p>
+            </li>
+            <li class="list-group-item"><strong>Estado:</strong> {{ $venta->estado ?? 'Desconocido' }}</li>
+        </ul>
+
+        <!-- Botón de Regreso -->
+        <div class="d-flex justify-content-end mt-4">
+            <a href="{{ route('ventas.index') }}" class="btn btn-secondary">Volver a la Lista</a>
         </div>
     </div>
-    <a href="{{ route('compras.index') }}" class="btn btn-primary">Regresar</a>
-@stop
+</div>
+@endsection

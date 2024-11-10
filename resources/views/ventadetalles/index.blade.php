@@ -2,22 +2,27 @@
 
 @section('title', 'Detalles de Ventas')
 
-@section('content_header')
-    <h1>Detalles de Ventas</h1>
-@stop
-
 @section('content')
+    <h2>Detalles de Venta Registrados</h2>
+
     @if(session('success'))
         <div class="alert alert-success">
             {{ session('success') }}
         </div>
     @endif
 
+    <!-- Búsqueda sin recarga -->
+    <form class="mb-3">
+        <div class="input-group">
+            <input type="text" id="search" class="form-control" placeholder="Buscar por ID Venta, Producto o Cantidad">
+        </div>
+    </form>
+
     <a href="{{ route('ventadetalles.create') }}" class="btn btn-primary mb-3">Crear Detalle de Venta</a>
 
     <div class="card">
         <div class="card-body">
-            <table class="table table-bordered table-striped">
+            <table class="table table-striped table-bordered">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -28,14 +33,14 @@
                         <th>Acciones</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="detalle-ventas-table">
                     @foreach($ventaDetalles as $ventaDetalle)
                         <tr>
                             <td>{{ $ventaDetalle->id_detalle }}</td>
                             <td>{{ $ventaDetalle->id_venta }}</td>
                             <td>{{ $ventaDetalle->id_producto }}</td>
                             <td>{{ $ventaDetalle->cantidad }}</td>
-                            <td>{{ $ventaDetalle->precio_unitario }}</td>
+                            <td>{{ number_format($ventaDetalle->precio_unitario, 2, ',', '.') }}</td>
                             <td>
                                 <a href="{{ route('ventadetalles.edit', $ventaDetalle->id_detalle) }}" class="btn btn-warning btn-sm">Editar</a>
                                 <form action="{{ route('ventadetalles.destroy', $ventaDetalle->id_detalle) }}" method="POST" style="display:inline;" class="delete-form">
@@ -77,5 +82,23 @@
                 });
             });
         });
+
+        // Funcionalidad de búsqueda sin recarga
+        document.getElementById('search').addEventListener('keyup', function() {
+            const searchValue = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#detalle-ventas-table tr');
+
+            rows.forEach(function(row) {
+                const idVenta = row.cells[1].textContent.toLowerCase();
+                const idProducto = row.cells[2].textContent.toLowerCase();
+                const cantidad = row.cells[3].textContent.toLowerCase();
+
+                if (idVenta.includes(searchValue) || idProducto.includes(searchValue) || cantidad.includes(searchValue)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
     </script>
-@stop
+@endsection

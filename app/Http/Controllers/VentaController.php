@@ -89,10 +89,17 @@ class VentaController extends Controller
 
     // Mostrar los detalles de una venta
     public function show($id)
-    {
-        $venta = Venta::with('cliente', 'detalles.producto')->findOrFail($id);
-        return view('ventas.show', compact('venta'));
-    }
+{
+    // Obtener la venta por su ID
+    $venta = Venta::with('detalles.producto', 'cliente')->findOrFail($id);
+
+    // Asegúrate de convertir 'fecha_venta' a Carbon si es una cadena de texto
+    $venta->fecha_venta = Carbon::parse($venta->fecha_venta);
+
+    // Pasar la venta a la vista
+    return view('ventadetalles.show', compact('venta'));
+}
+
 
     // Formulario para editar una venta
     public function edit($id)
