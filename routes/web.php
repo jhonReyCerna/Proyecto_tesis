@@ -138,6 +138,9 @@ Route::delete('venta/destroy/{venta}', [VentaController::class, 'destroy'])->nam
 
 Route::get('ventas/reporte', [VentaController::class, 'generarReportePDF'])->name('ventas.reporte');
 
+Route::get('venta/buscar-cliente/{dni}', [VentaController::class, 'buscarClientePorDni'])->name('ventas.buscarClientePorDni');
+
+
 //----------------------------------------------------------------------------------------------------------
 
 Route::get('venta_detalles/index', [VentaDetalleController::class, 'index'])->name('ventadetalles.index');

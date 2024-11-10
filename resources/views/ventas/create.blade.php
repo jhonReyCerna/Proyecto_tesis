@@ -23,7 +23,7 @@
                 <div class="form-group col-md-6 ">
                     <label for="dni" class="font-weight-bold text-muted mr-4">Buscar por DNI</label>
                     <div class="input-group">
-                        <input type="text" name="dni" id="dni" class="form-control form-control-lg" placeholder="Ingrese DNI" oninput="buscarPorDni()" />
+                        <input type="text" name="dni" id="dni" class="form-control form-control-lg" placeholder="Ingrese DNI" />
                         <div class="input-group-append">
                             <button type="button" class="btn btn-info px-4" onclick="buscarPorDni()">Buscar</button>
                         </div>
@@ -99,13 +99,62 @@
         </form>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script>
         // Función para buscar cliente por DNI
-        function buscarPorDni() {
-            let dni = document.getElementById('dni').value;
-            // Lógica para buscar el cliente según el DNI ingresado (puedes hacer una solicitud AJAX si es necesario)
-            console.log('Buscando cliente por DNI:', dni);
+        async function buscarPorDni() {
+    let dni = document.getElementById('dni').value;
+
+    // Verificar que el DNI tiene 8 dígitos
+    if (dni.length === 8) {
+        try {
+            // Realizar una solicitud AJAX al servidor para buscar al cliente
+            const response = await fetch(`/venta/buscar-cliente/${dni}`);
+            const data = await response.json();
+
+            if (data.id_cliente) {
+                // Si se encuentra el cliente, mostrar un mensaje con SweetAlert2
+                Swal.fire({
+                    title: 'Cliente encontrado',
+                    text: `Cliente: ${data.nombre}`,
+                    icon: 'success',
+                    confirmButtonText: 'Aceptar'
+                });
+
+                // Rellenar el campo del id_cliente con el valor encontrado
+                document.getElementById('id_cliente').value = data.id_cliente;
+            } else {
+                // Si no se encuentra el cliente, mostrar un mensaje de error
+                Swal.fire({
+                    title: 'Cliente no encontrado',
+                    text: 'Por favor verifica el DNI ingresado.',
+                    icon: 'error',
+                    confirmButtonText: 'Aceptar'
+                });
+
+                // Limpiar el campo de cliente
+                document.getElementById('id_cliente').value = '';
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            Swal.fire({
+                title: 'Error',
+                text: 'Hubo un problema al buscar el cliente. Inténtalo de nuevo.',
+                icon: 'error',
+                confirmButtonText: 'Aceptar'
+            });
         }
+    } else {
+        // Si el DNI no es válido, mostrar un mensaje de advertencia
+        Swal.fire({
+            title: 'DNI Inválido',
+            text: 'Por favor ingrese un DNI válido de 8 dígitos.',
+            icon: 'warning',
+            confirmButtonText: 'Aceptar'
+        });
+    }
+}
 
         // Calcular total con descuento
         function calcularTotal() {
@@ -159,11 +208,14 @@
             let newProductoItem = lastProductoItem.cloneNode(true);
 
             // Limpiar los campos del nuevo producto
-            let inputs = newProductoItem.querySelectorAll('input');
-            inputs.forEach(input => input.value = '');
+            newProductoItem.querySelectorAll('input').forEach(input => input.value = '');
+            newProductoItem.querySelector('select').selectedIndex = 0;
 
-            // Insertar el nuevo producto al final
+            // Agregar el nuevo producto al formulario
             document.querySelector('.productos-container').appendChild(newProductoItem);
+
+            // Actualizar el total nuevamente
+            calcularTotal();
         });
 
         // Eliminar producto
@@ -174,4 +226,4 @@
             }
         });
     </script>
-@stop
+@endsection

@@ -132,4 +132,20 @@ class VentaController extends Controller
 
         return redirect()->route('ventas.index')->with('success', 'Venta eliminada con éxito.');
     }
+
+    // En el archivo VentaController.php
+    public function buscarClientePorDni($dni)
+    {
+        $cliente = Cliente::where('dni', $dni)->first();
+
+        if ($cliente) {
+            return response()->json([
+                'id_cliente' => $cliente->id_cliente,
+                'nombre' => $cliente->nombre
+            ]);
+        } else {
+            return response()->json(['message' => 'Cliente no encontrado'], 404);
+        }
+    }
+
 }
