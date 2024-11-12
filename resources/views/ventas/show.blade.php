@@ -49,7 +49,6 @@
                             <th class="text-center">Precio Unitario</th>
                             <th class="text-center">Descuento</th>
                             <th class="text-center">Subtotal</th>
-                            <th class="text-center">Cambio</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -60,26 +59,25 @@
                                 <td class="text-center">S/. {{ number_format($detalle->precio_unitario, 2) }}</td>
                                 <td class="text-center text-danger">S/. {{ number_format($detalle->descuento, 2) }}</td>
                                 <td class="text-center fw-bold">S/. {{ number_format($detalle->subtotal, 2) }}</td>
-                                <td class="text-center text-success">S/. {{ number_format($detalle->cambio, 2) }}</td>
                             </tr>
                         @endforeach
                     </tbody>
                     <tfoot>
                         <tr class="table-info">
                             <td colspan="4" class="text-end"><strong>Subtotal:</strong></td>
-                            <td colspan="2" class="text-center fs-5 text-primary">
+                            <td class="text-center fs-5 text-primary">
                                 <strong>S/. {{ number_format($totalSubtotal, 2) }}</strong>
                             </td>
                         </tr>
                         <tr class="table-info">
                             <td colspan="4" class="text-end"><strong>IGV (18%):</strong></td>
-                            <td colspan="2" class="text-center fs-5 text-primary">
+                            <td class="text-center fs-5 text-primary">
                                 <strong>S/. {{ number_format($igv, 2) }}</strong>
                             </td>
                         </tr>
                         <tr class="table-info">
                             <td colspan="4" class="text-end"><strong>Total General:</strong></td>
-                            <td colspan="2" class="text-center fs-5 text-primary">
+                            <td class="text-center fs-5 text-primary">
                                 <strong>S/. {{ number_format($totalConIgv, 2) }}</strong>
                             </td>
                         </tr>
