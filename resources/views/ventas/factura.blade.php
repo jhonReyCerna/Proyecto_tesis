@@ -124,8 +124,6 @@
     <div class="container">
         <!-- Cabecera de la factura -->
         <div class="header">
-
-
             <!-- Información de la empresa a la derecha -->
             <div class="company-info">
                 <h1>La Curacao</h1>
@@ -152,7 +150,6 @@
                     <th>Cantidad</th>
                     <th>Precio Unitario</th>
                     <th>Descuento</th>
-                    <th>IGV</th>
                     <th>Subtotal</th>
                 </tr>
             </thead>
@@ -163,16 +160,23 @@
                         <td>{{ $detalle->cantidad }}</td>
                         <td>S/. {{ number_format($detalle->precio_unitario, 2) }}</td>
                         <td>S/. {{ number_format($detalle->descuento, 2) }}</td>
-                        <td>S/. {{ number_format($detalle->igv, 2) }}</td>
                         <td>S/. {{ number_format($detalle->subtotal, 2) }}</td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
 
+        @php
+            $totalSubtotal = $venta->detalles->sum('subtotal');
+            $igv = $totalSubtotal * 0.18;
+            $totalConIgv = $totalSubtotal + $igv;
+        @endphp
+
         <!-- Total a pagar -->
         <div class="total">
-            <p><strong>Total a Pagar:</strong> <span class="amount">S/. {{ number_format($venta->totalPagar, 2) }}</span></p>
+            <p><strong>Subtotal:</strong> <span class="amount">S/. {{ number_format($totalSubtotal, 2) }}</span></p>
+            <p><strong>IGV (18%):</strong> <span class="amount">S/. {{ number_format($igv, 2) }}</span></p>
+            <p><strong>Total a Pagar:</strong> <span class="amount">S/. {{ number_format($totalConIgv, 2) }}</span></p>
         </div>
 
         <!-- Pie de página -->

@@ -6,16 +6,18 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
-        // Crear la tabla _ventas_detalles
+        // Crear la tabla ventas_detalles
         Schema::create('ventas_detalles', function (Blueprint $table) {
             $table->id('id_detalle');
 
             // Claves foráneas
             $table->unsignedBigInteger('id_venta');
             $table->unsignedBigInteger('id_producto');
-            $table->unsignedBigInteger('id_cliente'); // Asegúrate de que también tengas esta columna en la tabla 'clientes'
 
             // Otros campos
             $table->integer('cantidad');
@@ -30,13 +32,15 @@ return new class extends Migration
             // Definir claves foráneas
             $table->foreign('id_venta')->references('id_venta')->on('ventas')->onDelete('cascade');
             $table->foreign('id_producto')->references('id_producto')->on('productos')->onDelete('restrict');
-            $table->foreign('id_cliente')->references('id_cliente')->on('clientes')->onDelete('restrict');
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
-        // Eliminar la tabla _ventas_detalles
-        Schema::dropIfExists('_ventas_detalles');
+        // Eliminar la tabla ventas_detalles
+        Schema::dropIfExists('ventas_detalles');
     }
 };

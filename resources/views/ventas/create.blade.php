@@ -53,24 +53,21 @@
                 <div id="productos-container">
                     <div class="producto mb-4">
                         <label for="id_producto[]" class="form-label">Producto</label >
-                        <select name="productos[0][id_producto]" class="form-control">
+                        <select name="productos[0][id_producto]" class="form-control producto-select">
                             <option value="" disabled selected>Seleccionar Producto</option>
                             @foreach($productos as $producto)
-                                <option value="{{ $producto->id_producto }}">{{ $producto->nombre }}</option>
+                                <option value="{{ $producto->id_producto }}" data-precio="{{ $producto->precio }}">{{ $producto->nombre }}</option>
                             @endforeach
                         </select>
 
                         <label for="cantidad[]" class="form-label">Cantidad</label>
-                        <input type="number" name="productos[0][cantidad]" class="form-control" required>
+                        <input type="number" name="productos[0][cantidad]" class="form-control cantidad-input" required>
 
                         <label for="precio_unitario[]" class="form-label">Precio Unitario</label>
-                        <input type="number" name="productos[0][precio_unitario]" class="form-control" required>
+                        <input type="number" name="productos[0][precio_unitario]" class="form-control precio-unitario-input" readonly>
 
                         <label for="descuento[]" class="form-label">Descuento</label>
-                        <input type="number" name="productos[0][descuento]" class="form-control">
-
-                        <label for="igv[]" class="form-label">IGV</label>
-                        <input type="number" name="productos[0][igv]" class="form-control">
+                        <input type="number" name="productos[0][descuento]" class="form-control descuento-input" placeholder="0" value="0">
 
                         <button type="button" class="btn btn-danger eliminar-producto mt-2">Eliminar Producto</button>
                     </div>
@@ -85,6 +82,16 @@
                     <option value="Pendiente">Pendiente</option>
                     <option value="Pagado">Pagado</option>
                 </select>
+            </div>
+
+            <div class="mb-4">
+                <label for="totalPagar" class="form-label">Total a Pagar</label>
+                <input type="number" name="totalPagar" id="totalPagar" class="form-control" readonly>
+            </div>
+
+            <div class="mb-4">
+                <label for="igv_total" class="form-label">IGV Total</label>
+                <input type="number" name="igv_total" id="igv_total" class="form-control" readonly>
             </div>
 
             <div class="card-footer d-flex justify-content-between">
@@ -124,23 +131,21 @@
             newProduct.classList.add('producto', 'mb-4');
             newProduct.innerHTML = `
                 <label for="id_producto[]" class="form-label">Producto</label>
-                <select name="productos[${count}][id_producto]" class="form-control">
+                <select name="productos[${count}][id_producto]" class="form-control producto-select">
+                    <option value="" disabled selected>Seleccionar Producto</option>
                     @foreach($productos as $producto)
-                        <option value="{{ $producto->id_producto }}">{{ $producto->nombre }}</option>
+                        <option value="{{ $producto->id_producto }}" data-precio="{{ $producto->precio }}">{{ $producto->nombre }}</option>
                     @endforeach
                 </select>
 
                 <label for="cantidad[]" class="form-label">Cantidad</label>
-                <input type="number" name="productos[${count}][cantidad]" class="form-control" required>
+                <input type="number" name="productos[${count}][cantidad]" class="form-control cantidad-input" required>
 
                 <label for="precio_unitario[]" class="form-label">Precio Unitario</label>
-                <input type="number" name="productos[${count}][precio_unitario]" class="form-control" required>
+                <input type="number" name="productos[${count}][precio_unitario]" class="form-control precio-unitario-input" readonly>
 
                 <label for="descuento[]" class="form-label">Descuento</label>
-                <input type="number" name="productos[${count}][descuento]" class="form-control">
-
-                <label for="igv[]" class="form-label">IGV</label>
-                <input type="number" name="productos[${count}][igv]" class="form-control">
+                <input type="number" name="productos[${count}][descuento]" class="form-control descuento-input" placeholder="0">
 
                 <button type="button" class="btn btn-danger eliminar-producto mt-2">Eliminar Producto</button>
             `;
@@ -151,68 +156,105 @@
         document.addEventListener('click', function (event) {
             if (event.target.classList.contains('eliminar-producto')) {
                 event.target.parentElement.remove();
+                calcularTotal();
             }
         });
 
+        // Calcular el precio unitario automáticamente
+        document.addEventListener('change', function (event) {
+            if (event.target.classList.contains('producto-select')) {
+                var selectedOption = event.target.options[event.target.selectedIndex];
+                var precio = selectedOption.getAttribute('data-precio');
+                var productoContainer = event.target.closest('.producto');
+                var precioUnitarioInput = productoContainer.querySelector('.precio-unitario-input');
+                var cantidadInput = productoContainer.querySelector('.cantidad-input');
 
-    // Función de búsqueda por DNI con AJAX
-     // Función de búsqueda por DNI con AJAX
-     document.getElementById('buscarDNI').addEventListener('click', function () {
-        var dni = document.getElementById('dni_cliente').value;
-        if (dni) {
-            // Realizamos una petición AJAX para buscar al cliente por DNI
-            fetch(`/venta/buscar-cliente/${dni}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Si se encuentra el cliente, completar los campos
-                        var cliente = data.cliente;
-                        document.getElementById('id_cliente').value = cliente.id_cliente; // Asigna el ID del cliente
+                precioUnitarioInput.value = precio;
+                calcularTotal();
+            }
+        });
 
-                        // Mostrar alerta de cliente encontrado
-                        Swal.fire({
-                            title: 'Cliente Encontrado!',
-                            text: `El cliente ${cliente.nombre} ha sido encontrado.`,
-                            icon: 'success',
-                            showConfirmButton: false,
-                            timer: 2000, // Duración de la alerta en milisegundos
-                            willClose: () => {
-                                // Puedes agregar aquí cualquier acción después de que la alerta se cierre
-                            }
-                        });
-                    } else {
-                        // Si no se encuentra el cliente
-                        Swal.fire({
-                            title: 'Cliente No Encontrado',
-                            text: 'No se ha encontrado un cliente con ese DNI.',
-                            icon: 'error',
-                            showConfirmButton: false,
-                            timer: 2000, // Duración de la alerta
-                            willClose: () => {
-                                // Aquí también puedes agregar alguna acción posterior si lo deseas
-                            }
-                        });
-                    }
-                })
-                .catch(error => {
-                    console.error('Error en la búsqueda del cliente:', error);
-                    Swal.fire({
-                        title: 'Error',
-                        text: 'Hubo un error al buscar el cliente.',
-                        icon: 'error',
-                        showConfirmButton: true
-                    });
-                });
-        } else {
-            Swal.fire({
-                title: 'Por Favor',
-                text: 'Por favor ingresa un DNI.',
-                icon: 'warning',
-                showConfirmButton: true
+        // Actualizar el total cuando cambia la cantidad o el descuento
+        document.addEventListener('input', function (event) {
+            if (event.target.classList.contains('cantidad-input') || event.target.classList.contains('descuento-input')) {
+                calcularTotal();
+            }
+        });
+
+        // Función para calcular el total y el IGV
+        function calcularTotal() {
+            var productos = document.querySelectorAll('.producto');
+            var total = 0;
+
+            productos.forEach(function (producto) {
+                var cantidad = producto.querySelector('.cantidad-input').value || 0;
+                var precio = producto.querySelector('.precio-unitario-input').value || 0;
+                var descuento = producto.querySelector('.descuento-input').value || 0;
+                var subtotal = (cantidad * precio) - descuento;
+                total += subtotal;
             });
+
+            var igv = total * 0.18; // Tasa de IGV del 18%
+            var totalConIgv = total + igv;
+            document.getElementById('totalPagar').value = totalConIgv.toFixed(2);
+            document.getElementById('igv_total').value = igv.toFixed(2);
         }
-    });
-</script>
 
+        // Función de búsqueda por DNI con AJAX
+        document.getElementById('buscarDNI').addEventListener('click', function () {
+            var dni = document.getElementById('dni_cliente').value;
+            if (dni) {
+                // Realizamos una petición AJAX para buscar al cliente por DNI
+                fetch(`/venta/buscar-cliente/${dni}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Si se encuentra el cliente, completar los campos
+                            var cliente = data.cliente;
+                            document.getElementById('id_cliente').value = cliente.id_cliente; // Asigna el ID del cliente
 
+                            // Mostrar alerta de cliente encontrado
+                            Swal.fire({
+                                title: 'Cliente Encontrado!',
+                                text: `El cliente ${cliente.nombre} ha sido encontrado.`,
+                                icon: 'success',
+                                showConfirmButton: false,
+                                timer: 2000, // Duración de la alerta en milisegundos
+                                willClose: () => {
+                                    // Puedes agregar aquí cualquier acción después de que la alerta se cierre
+                                }
+                            });
+                        } else {
+                            // Si no se encuentra el cliente
+                            Swal.fire({
+                                title: 'Cliente No Encontrado',
+                                text: 'No se ha encontrado un cliente con ese DNI.',
+                                icon: 'error',
+                                showConfirmButton: false,
+                                timer: 2000, // Duración de la alerta
+                                willClose: () => {
+                                    // Aquí también puedes agregar alguna acción posterior si lo deseas
+                                }
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error en la búsqueda del cliente:', error);
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'Hubo un error al buscar el cliente.',
+                            icon: 'error',
+                            showConfirmButton: true
+                        });
+                    });
+            } else {
+                Swal.fire({
+                    title: 'Por Favor',
+                    text: 'Por favor ingresa un DNI.',
+                    icon: 'warning',
+                    showConfirmButton: true
+                });
+            }
+        });
+    </script>
 @stop

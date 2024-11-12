@@ -18,7 +18,12 @@
                 <p><strong>Cliente:</strong> {{ $venta->cliente->nombre }}</p>
                 <p><strong>Fecha de Venta:</strong> {{ \Carbon\Carbon::parse($venta->fecha_venta)->format('d M, Y - H:i A') }}</p>
                 <p><strong>Total a Pagar:</strong>
-                    <span class="badge bg-light text-dark fs-5">S/. {{ number_format($venta->totalPagar, 2) }}</span>
+                    @php
+                        $totalSubtotal = $venta->detalles->sum('subtotal');
+                        $igv = $totalSubtotal * 0.18;
+                        $totalConIgv = $totalSubtotal + $igv;
+                    @endphp
+                    <span class="badge bg-light text-dark fs-5">S/. {{ number_format($totalConIgv, 2) }}</span>
                 </p>
                 <p><strong>Estado:</strong>
                     <span class="badge {{ $venta->estado == 'Completado' ? 'bg-success' : 'bg-warning' }}">
@@ -43,7 +48,6 @@
                             <th class="text-center">Cantidad</th>
                             <th class="text-center">Precio Unitario</th>
                             <th class="text-center">Descuento</th>
-                            <th class="text-center">IGV</th>
                             <th class="text-center">Subtotal</th>
                             <th class="text-center">Cambio</th>
                         </tr>
@@ -55,7 +59,6 @@
                                 <td class="text-center">{{ $detalle->cantidad }}</td>
                                 <td class="text-center">S/. {{ number_format($detalle->precio_unitario, 2) }}</td>
                                 <td class="text-center text-danger">S/. {{ number_format($detalle->descuento, 2) }}</td>
-                                <td class="text-center">S/. {{ number_format($detalle->igv, 2) }}</td>
                                 <td class="text-center fw-bold">S/. {{ number_format($detalle->subtotal, 2) }}</td>
                                 <td class="text-center text-success">S/. {{ number_format($detalle->cambio, 2) }}</td>
                             </tr>
@@ -63,9 +66,21 @@
                     </tbody>
                     <tfoot>
                         <tr class="table-info">
-                            <td colspan="5" class="text-end"><strong>Total General:</strong></td>
+                            <td colspan="4" class="text-end"><strong>Subtotal:</strong></td>
                             <td colspan="2" class="text-center fs-5 text-primary">
-                                <strong>S/. {{ number_format($venta->totalPagar, 2) }}</strong>
+                                <strong>S/. {{ number_format($totalSubtotal, 2) }}</strong>
+                            </td>
+                        </tr>
+                        <tr class="table-info">
+                            <td colspan="4" class="text-end"><strong>IGV (18%):</strong></td>
+                            <td colspan="2" class="text-center fs-5 text-primary">
+                                <strong>S/. {{ number_format($igv, 2) }}</strong>
+                            </td>
+                        </tr>
+                        <tr class="table-info">
+                            <td colspan="4" class="text-end"><strong>Total General:</strong></td>
+                            <td colspan="2" class="text-center fs-5 text-primary">
+                                <strong>S/. {{ number_format($totalConIgv, 2) }}</strong>
                             </td>
                         </tr>
                     </tfoot>
@@ -86,6 +101,5 @@
     <a href="{{ route('ventas.factura', $venta->id_venta) }}" class="btn btn-lg btn-danger">
         <i class="fas fa-file-pdf"></i> Factura PDF
     </a>
-
 </div>
 @endsection

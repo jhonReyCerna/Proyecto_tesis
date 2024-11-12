@@ -12,16 +12,27 @@ class VentaDetalle extends Model
     protected $table = 'ventas_detalles';
     protected $primaryKey = 'id_detalle';
 
-    // Relación con el producto
+    protected $fillable = [
+        'id_venta',
+        'id_producto',
+        'cantidad',
+        'precio_unitario',
+        'descuento',
+        'igv',
+        'subtotal',
+        'cambio',
+    ];
+
+    public function venta()
+    {
+        return $this->belongsTo(Venta::class, 'id_venta');
+    }
+
     public function producto()
     {
         return $this->belongsTo(Producto::class, 'id_producto', 'id_producto');
     }
 
-    // Relación con el cliente
-    public function cliente()
-    {
-        return $this->belongsTo(Cliente::class, 'id_cliente', 'id_cliente');
-    }
+    
 }
 
