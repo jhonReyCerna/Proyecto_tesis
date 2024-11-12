@@ -2,8 +2,10 @@
 
 use App\Http\Controllers\AlmacenController;
 use App\Http\Controllers\CategoriaController;
+use App\Http\Controllers\ChartController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\CompraController;
+use App\Http\Controllers\GraficoController;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\ProveedorController;
 use App\Http\Controllers\VentaController;
@@ -160,4 +162,6 @@ Route::put('venta_detalles/update/{ventadetalle}', [VentaDetalleController::clas
 
 Route::delete('venta_detalles/destroy/{ventadetalle}', [VentaDetalleController::class, 'destroy'])->name('ventadetalles.destroy');
 
+//----------------------------------------------------------------------------------------------------------
 
+Route::get('/graficos', [GraficoController::class, 'index'])->name('graficos.index');
