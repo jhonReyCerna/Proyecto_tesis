@@ -51,7 +51,7 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Compras Diarias y Mensuales</h3>
+                    <h3 class="card-title">Compras Mensuales</h3>
                 </div>
                 <div class="card-body">
                     <canvas id="comprasChart" style="height: 400px;"></canvas>
@@ -61,7 +61,7 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Ventas Diarias y Mensuales</h3>
+                    <h3 class="card-title">Ventas Mensuales</h3>
                 </div>
                 <div class="card-body">
                     <canvas id="ventasChart" style="height: 400px;"></canvas>
@@ -75,14 +75,22 @@
     <script>
         $(function () {
             // Proveedores
+            var proveedores = @json($proveedores);
+            var nombresProveedores = proveedores.map(function(proveedor) {
+                return proveedor.nombre;
+            });
+            var cantidadesProveedores = proveedores.map(function(proveedor) {
+                return 1; // Asume 1 si no hay cantidad
+            });
+
             var ctxProveedores = document.getElementById('proveedoresChart').getContext('2d');
             var proveedoresChart = new Chart(ctxProveedores, {
-                type: 'bar',
+                type: 'pie',
                 data: {
-                    labels: ['Proveedores'],
+                    labels: nombresProveedores,
                     datasets: [{
                         label: 'Cantidad',
-                        data: [{{ $proveedoresCount }}],
+                        data: cantidadesProveedores,
                         backgroundColor: 'rgba(60,141,188,0.9)',
                         borderColor: 'rgba(60,141,188,0.8)',
                         borderWidth: 1
@@ -90,24 +98,27 @@
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
+                    maintainAspectRatio: false
                 }
             });
 
             // Categorías
+            var categorias = @json($categorias);
+            var nombresCategorias = categorias.map(function(categoria) {
+                return categoria.nombre;
+            });
+            var cantidadesCategorias = categorias.map(function(categoria) {
+                return 1; // Asume 1 si no hay cantidad
+            });
+
             var ctxCategorias = document.getElementById('categoriasChart').getContext('2d');
             var categoriasChart = new Chart(ctxCategorias, {
-                type: 'bar',
+                type: 'pie',
                 data: {
-                    labels: ['Categorías'],
+                    labels: nombresCategorias,
                     datasets: [{
                         label: 'Cantidad',
-                        data: [{{ $categoriasCount }}],
+                        data: cantidadesCategorias,
                         backgroundColor: 'rgba(60,141,188,0.9)',
                         borderColor: 'rgba(60,141,188,0.8)',
                         borderWidth: 1
@@ -115,24 +126,27 @@
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
+                    maintainAspectRatio: false
                 }
             });
 
             // Clientes
+            var clientes = @json($clientes);
+            var nombresClientes = clientes.map(function(cliente) {
+                return cliente.nombre;
+            });
+            var cantidadesClientes = clientes.map(function(cliente) {
+                return 1; // Asume 1 si no hay cantidad
+            });
+
             var ctxClientes = document.getElementById('clientesChart').getContext('2d');
             var clientesChart = new Chart(ctxClientes, {
-                type: 'bar',
+                type: 'pie',
                 data: {
-                    labels: ['Clientes'],
+                    labels: nombresClientes,
                     datasets: [{
                         label: 'Cantidad',
-                        data: [{{ $clientesCount }}],
+                        data: cantidadesClientes,
                         backgroundColor: 'rgba(60,141,188,0.9)',
                         borderColor: 'rgba(60,141,188,0.8)',
                         borderWidth: 1
@@ -140,24 +154,27 @@
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
+                    maintainAspectRatio: false
                 }
             });
 
             // Productos
+            var productos = @json($productos);
+            var nombresProductos = productos.map(function(producto) {
+                return producto.nombre;
+            });
+            var cantidadesProductos = productos.map(function(producto) {
+                return 1; // Asume 1 si no hay cantidad
+            });
+
             var ctxProductos = document.getElementById('productosChart').getContext('2d');
             var productosChart = new Chart(ctxProductos, {
-                type: 'bar',
+                type: 'pie',
                 data: {
-                    labels: ['Productos'],
+                    labels: nombresProductos,
                     datasets: [{
                         label: 'Cantidad',
-                        data: [{{ $productosCount }}],
+                        data: cantidadesProductos,
                         backgroundColor: 'rgba(60,141,188,0.9)',
                         borderColor: 'rgba(60,141,188,0.8)',
                         borderWidth: 1
@@ -165,24 +182,27 @@
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
+                    maintainAspectRatio: false
                 }
             });
 
-            // Compras Diarias y Mensuales
+            // Compras Mensuales
+            var comprasMensuales = @json($comprasMensuales);
+            var mesesCompras = comprasMensuales.map(function(compra) {
+                return compra.mes;
+            });
+            var cantidadesCompras = comprasMensuales.map(function(compra) {
+                return compra.cantidad;
+            });
+
             var ctxCompras = document.getElementById('comprasChart').getContext('2d');
             var comprasChart = new Chart(ctxCompras, {
                 type: 'bar',
                 data: {
-                    labels: ['Diarias', 'Mensuales'],
+                    labels: mesesCompras,
                     datasets: [{
                         label: 'Compras',
-                        data: [{{ $comprasDiarias }}, {{ $comprasMensuales }}],
+                        data: cantidadesCompras,
                         backgroundColor: 'rgba(60,141,188,0.9)',
                         borderColor: 'rgba(60,141,188,0.8)',
                         borderWidth: 1
@@ -199,15 +219,23 @@
                 }
             });
 
-            // Ventas Diarias y Mensuales
+            // Ventas Mensuales
+            var ventasMensuales = @json($ventasMensuales);
+            var mesesVentas = ventasMensuales.map(function(venta) {
+                return venta.mes;
+            });
+            var cantidadesVentas = ventasMensuales.map(function(venta) {
+                return venta.cantidad;
+            });
+
             var ctxVentas = document.getElementById('ventasChart').getContext('2d');
             var ventasChart = new Chart(ctxVentas, {
                 type: 'bar',
                 data: {
-                    labels: ['Diarias', 'Mensuales'],
+                    labels: mesesVentas,
                     datasets: [{
                         label: 'Ventas',
-                        data: [{{ $ventasDiarias }}, {{ $ventasMensuales }}],
+                        data: cantidadesVentas,
                         backgroundColor: 'rgba(60,141,188,0.9)',
                         borderColor: 'rgba(60,141,188,0.8)',
                         borderWidth: 1

@@ -15,23 +15,25 @@ class GraficoController extends Controller
 {
     public function index()
     {
-        // Obtener datos
-        $proveedoresCount = Proveedor::count();
-        $categoriasCount = Categoria::count();
-        $clientesCount = Cliente::count();
-        $productosCount = Producto::count();
+        // Obtener todos los datos
+        $proveedores = Proveedor::all();
+        $categorias = Categoria::all();
+        $clientes = Cliente::all();
+        $productos = Producto::all();
 
-        // Compras diarias y mensuales
-        $comprasDiarias = Compra::whereDate('created_at', Carbon::today())->count();
-        $comprasMensuales = Compra::whereMonth('created_at', Carbon::now()->month)->count();
+        // Compras mensuales
+        $comprasMensuales = Compra::selectRaw('MONTH(created_at) as mes, COUNT(*) as cantidad')
+            ->groupBy('mes')
+            ->get();
 
-        // Ventas diarias y mensuales
-        $ventasDiarias = Venta::whereDate('created_at', Carbon::today())->count();
-        $ventasMensuales = Venta::whereMonth('created_at', Carbon::now()->month)->count();
+        // Ventas mensuales
+        $ventasMensuales = Venta::selectRaw('MONTH(created_at) as mes, COUNT(*) as cantidad')
+            ->groupBy('mes')
+            ->get();
 
         return view('graficos.index', compact(
-            'proveedoresCount', 'categoriasCount', 'clientesCount', 'productosCount',
-            'comprasDiarias', 'comprasMensuales', 'ventasDiarias', 'ventasMensuales'
+            'proveedores', 'categorias', 'clientes', 'productos',
+            'comprasMensuales', 'ventasMensuales'
         ));
     }
 }
