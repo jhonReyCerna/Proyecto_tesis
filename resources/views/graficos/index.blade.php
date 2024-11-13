@@ -3,254 +3,234 @@
 @section('title', 'Gráficos')
 
 @section('content_header')
-    <h1>Gráficos</h1>
+    <h1>Gráficos Estadísticos</h1>
 @stop
 
 @section('content')
-    <div class="row">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Cantidad de Proveedores</h3>
-                </div>
-                <div class="card-body">
-                    <canvas id="proveedoresChart" style="height: 400px;"></canvas>
-                </div>
+
+<div class="mb-4">
+    <a href="{{ route('graficos.pdf') }}" class="btn btn-danger">
+        <i class="fas fa-file-pdf"></i> Descargar PDF
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Proveedores</h3>
             </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Cantidad de Categorías</h3>
-                </div>
-                <div class="card-body">
-                    <canvas id="categoriasChart" style="height: 400px;"></canvas>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Cantidad de Clientes</h3>
-                </div>
-                <div class="card-body">
-                    <canvas id="clientesChart" style="height: 400px;"></canvas>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Cantidad de Productos</h3>
-                </div>
-                <div class="card-body">
-                    <canvas id="productosChart" style="height: 400px;"></canvas>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Compras Mensuales</h3>
-                </div>
-                <div class="card-body">
-                    <canvas id="comprasChart" style="height: 400px;"></canvas>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Ventas Mensuales</h3>
-                </div>
-                <div class="card-body">
-                    <canvas id="ventasChart" style="height: 400px;"></canvas>
+            <div class="card-body" style="height: 400px; display: flex; justify-content: center; align-items: center;">
+                <div style="width: 80%;">
+                    <canvas id="proveedoresChart"></canvas>
                 </div>
             </div>
         </div>
     </div>
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Categorías</h3>
+            </div>
+            <div class="card-body" style="height: 400px; display: flex; justify-content: center; align-items: center;">
+                <div style="width: 80%;">
+                    <canvas id="categoriasChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Clientes</h3>
+            </div>
+            <div class="card-body" style="height: 400px; display: flex; justify-content: center; align-items: center;">
+                <div style="width: 80%;">
+                    <canvas id="clientesChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Productos</h3>
+            </div>
+            <div class="card-body" style="height: 400px; display: flex; justify-content: center; align-items: center;">
+                <div style="width: 80%;">
+                    <canvas id="productosChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@stop
+
+@section('css')
+    <link rel="stylesheet" href="/css/admin_custom.css">
 @stop
 
 @section('js')
-    <script>
-        $(function () {
-            // Proveedores
-            var proveedores = @json($proveedores);
-            var nombresProveedores = proveedores.map(function(proveedor) {
-                return proveedor.nombre;
-            });
-            var cantidadesProveedores = proveedores.map(function(proveedor) {
-                return 1; // Asume 1 si no hay cantidad
-            });
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const data = @json($data);
 
-            var ctxProveedores = document.getElementById('proveedoresChart').getContext('2d');
-            var proveedoresChart = new Chart(ctxProveedores, {
-                type: 'pie',
-                data: {
-                    labels: nombresProveedores,
-                    datasets: [{
-                        label: 'Cantidad',
-                        data: cantidadesProveedores,
-                        backgroundColor: 'rgba(60,141,188,0.9)',
-                        borderColor: 'rgba(60,141,188,0.8)',
-                        borderWidth: 1
-                    }]
+
+    const commonOptions = {
+        responsive: true,
+        maintainAspectRatio: true,
+        aspectRatio: 1.5,
+        plugins: {
+            legend: {
+                display: false
+            },
+            title: {
+                display: true
+            }
+        }
+    };
+
+    const ctxProveedores = document.getElementById('proveedoresChart').getContext('2d');
+    new Chart(ctxProveedores, {
+        type: 'bar',
+        data: {
+            labels: ['Proveedores'],
+            datasets: [{
+                label: 'Frecuencia',
+                data: [data.proveedores],
+                backgroundColor: ['rgba(255, 99, 132, 0.8)'],
+                borderColor: ['rgb(255, 99, 132)'],
+                borderWidth: 1,
+                barPercentage: 1.0,
+                categoryPercentage: 1.0
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false
+                title: {
+                    display: true,
+                    text: `Distribución de Proveedores: ${data.proveedores}`
                 }
-            });
-
-            // Categorías
-            var categorias = @json($categorias);
-            var nombresCategorias = categorias.map(function(categoria) {
-                return categoria.nombre;
-            });
-            var cantidadesCategorias = categorias.map(function(categoria) {
-                return 1; // Asume 1 si no hay cantidad
-            });
-
-            var ctxCategorias = document.getElementById('categoriasChart').getContext('2d');
-            var categoriasChart = new Chart(ctxCategorias, {
-                type: 'pie',
-                data: {
-                    labels: nombresCategorias,
-                    datasets: [{
-                        label: 'Cantidad',
-                        data: cantidadesCategorias,
-                        backgroundColor: 'rgba(60,141,188,0.9)',
-                        borderColor: 'rgba(60,141,188,0.8)',
-                        borderWidth: 1
-                    }]
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Frecuencia'
+                    }
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false
-                }
-            });
-
-            // Clientes
-            var clientes = @json($clientes);
-            var nombresClientes = clientes.map(function(cliente) {
-                return cliente.nombre;
-            });
-            var cantidadesClientes = clientes.map(function(cliente) {
-                return 1; // Asume 1 si no hay cantidad
-            });
-
-            var ctxClientes = document.getElementById('clientesChart').getContext('2d');
-            var clientesChart = new Chart(ctxClientes, {
-                type: 'pie',
-                data: {
-                    labels: nombresClientes,
-                    datasets: [{
-                        label: 'Cantidad',
-                        data: cantidadesClientes,
-                        backgroundColor: 'rgba(60,141,188,0.9)',
-                        borderColor: 'rgba(60,141,188,0.8)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false
-                }
-            });
-
-            // Productos
-            var productos = @json($productos);
-            var nombresProductos = productos.map(function(producto) {
-                return producto.nombre;
-            });
-            var cantidadesProductos = productos.map(function(producto) {
-                return 1; // Asume 1 si no hay cantidad
-            });
-
-            var ctxProductos = document.getElementById('productosChart').getContext('2d');
-            var productosChart = new Chart(ctxProductos, {
-                type: 'pie',
-                data: {
-                    labels: nombresProductos,
-                    datasets: [{
-                        label: 'Cantidad',
-                        data: cantidadesProductos,
-                        backgroundColor: 'rgba(60,141,188,0.9)',
-                        borderColor: 'rgba(60,141,188,0.8)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false
-                }
-            });
-
-            // Compras Mensuales
-            var comprasMensuales = @json($comprasMensuales);
-            var mesesCompras = comprasMensuales.map(function(compra) {
-                return compra.mes;
-            });
-            var cantidadesCompras = comprasMensuales.map(function(compra) {
-                return compra.cantidad;
-            });
-
-            var ctxCompras = document.getElementById('comprasChart').getContext('2d');
-            var comprasChart = new Chart(ctxCompras, {
-                type: 'bar',
-                data: {
-                    labels: mesesCompras,
-                    datasets: [{
-                        label: 'Compras',
-                        data: cantidadesCompras,
-                        backgroundColor: 'rgba(60,141,188,0.9)',
-                        borderColor: 'rgba(60,141,188,0.8)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
+                x: {
+                    title: {
+                        display: true,
+                        text: ''
                     }
                 }
-            });
+            }
+        }
+    });
 
-            // Ventas Mensuales
-            var ventasMensuales = @json($ventasMensuales);
-            var mesesVentas = ventasMensuales.map(function(venta) {
-                return venta.mes;
-            });
-            var cantidadesVentas = ventasMensuales.map(function(venta) {
-                return venta.cantidad;
-            });
 
-            var ctxVentas = document.getElementById('ventasChart').getContext('2d');
-            var ventasChart = new Chart(ctxVentas, {
-                type: 'bar',
-                data: {
-                    labels: mesesVentas,
-                    datasets: [{
-                        label: 'Ventas',
-                        data: cantidadesVentas,
-                        backgroundColor: 'rgba(60,141,188,0.9)',
-                        borderColor: 'rgba(60,141,188,0.8)',
-                        borderWidth: 1
-                    }]
+    const ctxCategorias = document.getElementById('categoriasChart').getContext('2d');
+    new Chart(ctxCategorias, {
+        type: 'line',
+        data: {
+            labels: ['Categorías'],
+            datasets: [{
+                label: 'Cantidad de Categorías',
+                data: [data.categorias],
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 2,
+                tension: 0.4,
+                fill: true,
+                pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+                pointBorderColor: '#fff',
+                pointRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top'
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
+                title: {
+                    display: true,
+                    text: `Total Categorías: ${data.categorias}`
                 }
-            });
-        });
-    </script>
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+
+    const ctxClientes = document.getElementById('clientesChart').getContext('2d');
+    new Chart(ctxClientes, {
+        type: 'pie',
+        data: {
+            labels: ['Clientes'],
+            datasets: [{
+                data: [data.clientes],
+                backgroundColor: ['rgba(255, 206, 86, 0.8)'],
+                borderColor: ['rgb(255, 206, 86)'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            ...commonOptions,
+            plugins: {
+                ...commonOptions.plugins,
+                title: {
+                    ...commonOptions.plugins.title,
+                    text: `Total Clientes: ${data.clientes}`
+                }
+            }
+        }
+    });
+
+    const ctxProductos = document.getElementById('productosChart').getContext('2d');
+    new Chart(ctxProductos, {
+        type: 'bar',
+        data: {
+            labels: ['Productos'],
+            datasets: [{
+                label: 'Cantidad de Productos',
+                data: [data.productos],
+                backgroundColor: ['rgba(75, 192, 192, 0.8)'],
+                borderColor: ['rgb(75, 192, 192)'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            indexAxis: 'y', 
+            plugins: {
+                legend: {
+                    display: false
+                },
+                title: {
+                    display: true,
+                    text: `Total Productos: ${data.productos}`
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+});
+</script>
 @stop

@@ -165,3 +165,6 @@ Route::delete('venta_detalles/destroy/{ventadetalle}', [VentaDetalleController::
 //----------------------------------------------------------------------------------------------------------
 
 Route::get('/graficos', [GraficoController::class, 'index'])->name('graficos.index');
+
+
+Route::get('graficos/pdf', [GraficoController::class, 'generatePDF'])->name('graficos.pdf');
