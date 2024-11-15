@@ -13,7 +13,6 @@
         </div>
     @endif
 
-    <!-- Buscador sin recarga -->
     <form class="mb-3">
         <div class="input-group">
             <input type="text" id="search" class="form-control" placeholder="Buscar por nombre, ubicación o capacidad">
@@ -64,7 +63,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // Funcionalidad para eliminar con SweetAlert2
         document.querySelectorAll('.delete-btn').forEach(function(button) {
             button.addEventListener('click', function() {
                 const form = this.closest('.delete-form');
@@ -85,7 +83,7 @@
             });
         });
 
-    
+
         document.getElementById('search').addEventListener('keyup', function() {
             const searchValue = this.value.toLowerCase();
             const rows = document.querySelectorAll('#almacenes-table tr');

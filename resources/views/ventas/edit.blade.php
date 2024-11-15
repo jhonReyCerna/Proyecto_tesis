@@ -1,4 +1,3 @@
-<!-- resources/views/ventas/edit.blade.php -->
 
 @extends('layouts.app')
 

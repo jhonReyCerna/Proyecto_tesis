@@ -197,4 +197,16 @@ class VentaController extends Controller
         // Redirigir con un mensaje de éxito
         return redirect()->route('ventas.index')->with('success', 'Venta actualizada correctamente.');
     }
+
+    public function reporte()
+{
+    // Get all ventas with cliente relationship
+    $ventas = Venta::with('cliente')->get();
+
+    // Generate PDF
+    $pdf = PDF::loadView('ventas.reporte', compact('ventas'));
+
+    // Download with filename
+    return $pdf->download('reporte-ventas.pdf');
+}
 }

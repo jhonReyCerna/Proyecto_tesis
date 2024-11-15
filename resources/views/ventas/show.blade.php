@@ -88,7 +88,6 @@
     </div>
 </div>
 
-<!-- Botones de Acción -->
 <div class="text-center mt-5">
     <a href="{{ route('ventas.index') }}" class="btn btn-lg btn-outline-secondary me-3">
         <i class="fas fa-undo-alt"></i> Volver al Listado

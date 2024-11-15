@@ -79,10 +79,9 @@
             const cantidad = parseFloat(document.querySelector('input[name="cantidad"]').value) || 0;
             const precioUnitario = parseFloat(document.querySelector('input[name="precio_unitario"]').value) || 0;
             const total = cantidad * precioUnitario;
-            document.getElementById('total').value = total.toFixed(2); 
+            document.getElementById('total').value = total.toFixed(2);
         }
 
-        // Escuchar cambios en cantidad y precio unitario
         document.querySelector('input[name="cantidad"]').addEventListener('input', calcularTotal);
         document.getElementById('precio_unitario').addEventListener('input', calcularTotal);
 

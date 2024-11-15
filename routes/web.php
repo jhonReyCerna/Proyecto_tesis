@@ -144,6 +144,8 @@ Route::get('venta/buscar-cliente/{dni}', [VentaController::class, 'buscarCliente
 
 Route::get('venta/{id}/factura', [VentaController::class, 'facturaPDF'])->name('ventas.factura');
 
+Route::get('ventas/reporte', [VentaController::class, 'reporte'])->name('ventas.reporte');
+
 
 
 //----------------------------------------------------------------------------------------------------------

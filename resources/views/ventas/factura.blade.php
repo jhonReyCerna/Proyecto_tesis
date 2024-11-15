@@ -26,21 +26,21 @@
         .header {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start; /* Alineación vertical de los elementos hacia arriba */
+            align-items: flex-start;
             border-bottom: 2px solid #2980b9;
             padding-bottom: 10px;
             margin-bottom: 15px;
         }
 
         .header .company-logo {
-            width: 150px; /* Ajusta el tamaño de la imagen */
+            width: 150px;
             height: auto;
         }
 
         .header .company-info {
             font-size: 14px;
             text-align: right;
-            margin-top: -5px; /* Ajuste para que el texto suba un poco */
+            margin-top: -5px;
         }
 
         .header .company-info h1 {
@@ -110,21 +110,21 @@
             text-decoration: none;
         }
 
-        /* Estilos para la imagen del logo */
+
         .header img.logo {
             width: 200px;
             height: auto;
             max-width: 100%;
-            margin-top: 5px; /* Mueve la imagen hacia abajo para pegarla a la línea */
+            margin-top: 5px;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <!-- Cabecera de la factura -->
+
         <div class="header">
-            <!-- Información de la empresa a la derecha -->
+
             <div class="company-info">
                 <h1>La Curacao</h1>
                 <p>Dirección: Jirón Trujillo, Chepén</p>
@@ -133,7 +133,6 @@
             </div>
         </div>
 
-        <!-- Información de la factura -->
         <div class="invoice-info">
             <p><strong>Factura de Venta #{{ $venta->id_venta }}</strong></p>
             <p><strong>Fecha:</strong> {{ \Carbon\Carbon::parse($venta->fecha_venta)->format('d M, Y - H:i A') }}</p>
@@ -142,7 +141,6 @@
             <p><strong>Teléfono:</strong> {{ $venta->cliente->telefono }}</p>
         </div>
 
-        <!-- Tabla de detalles de la venta -->
         <table class="table">
             <thead>
                 <tr>
@@ -172,14 +170,12 @@
             $totalConIgv = $totalSubtotal + $igv;
         @endphp
 
-        <!-- Total a pagar -->
         <div class="total">
             <p><strong>Subtotal:</strong> <span class="amount">S/. {{ number_format($totalSubtotal, 2) }}</span></p>
             <p><strong>IGV (18%):</strong> <span class="amount">S/. {{ number_format($igv, 2) }}</span></p>
             <p><strong>Total a Pagar:</strong> <span class="amount">S/. {{ number_format($totalConIgv, 2) }}</span></p>
         </div>
 
-        <!-- Pie de página -->
         <div class="footer">
             <p>Gracias por su compra en <strong>La Curacao</strong>.</p>
             <p><a href="https://www.tutienda.com">Visítanos en nuestro sitio web</a></p>

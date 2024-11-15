@@ -21,9 +21,7 @@
         @csrf
         <div class="card shadow-sm">
             <div class="card-body">
-                <!-- Información de la venta -->
                 <div class="row mb-4">
-                    <!-- Campo Cliente -->
                     <div class="col-md-6">
                         <label for="id_cliente" class="form-label">Cliente</label>
                         <select name="id_cliente" id="id_cliente" class="form-control">
@@ -34,7 +32,6 @@
                         </select>
                     </div>
 
-                    <!-- Campo Buscar por DNI -->
                     <div class="col-md-6">
                         <label for="dni_cliente" class="form-label">Buscar por DNI</label>
                         <div class="input-group">
@@ -49,7 +46,6 @@
                     <input type="date" name="fecha_venta" id="fecha_venta" class="form-control" required>
                 </div>
 
-                <!-- Productos (detalles de la venta) -->
                 <div id="productos-container">
                     <div class="producto mb-4">
                         <label for="id_producto[]" class="form-label">Producto</label >
@@ -103,7 +99,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // Confirmación antes de guardar la venta
         document.getElementById('guardarBtn').addEventListener('click', function(event) {
             event.preventDefault();
 
@@ -123,7 +118,6 @@
             });
         });
 
-        // Agregar un nuevo producto al formulario
         document.getElementById('agregar-producto').addEventListener('click', function () {
             var container = document.getElementById('productos-container');
             var count = container.getElementsByClassName('producto').length;
@@ -152,7 +146,6 @@
             container.appendChild(newProduct);
         });
 
-        // Eliminar un producto
         document.addEventListener('click', function (event) {
             if (event.target.classList.contains('eliminar-producto')) {
                 event.target.parentElement.remove();
@@ -160,7 +153,6 @@
             }
         });
 
-        // Calcular el precio unitario automáticamente
         document.addEventListener('change', function (event) {
             if (event.target.classList.contains('producto-select')) {
                 var selectedOption = event.target.options[event.target.selectedIndex];
@@ -174,14 +166,12 @@
             }
         });
 
-        // Actualizar el total cuando cambia la cantidad o el descuento
         document.addEventListener('input', function (event) {
             if (event.target.classList.contains('cantidad-input') || event.target.classList.contains('descuento-input')) {
                 calcularTotal();
             }
         });
 
-        // Función para calcular el total y el IGV
         function calcularTotal() {
             var productos = document.querySelectorAll('.producto');
             var total = 0;
@@ -194,46 +184,39 @@
                 total += subtotal;
             });
 
-            var igv = total * 0.18; // Tasa de IGV del 18%
+            var igv = total * 0.18;
             var totalConIgv = total + igv;
             document.getElementById('totalPagar').value = totalConIgv.toFixed(2);
             document.getElementById('igv_total').value = igv.toFixed(2);
         }
 
-        // Función de búsqueda por DNI con AJAX
         document.getElementById('buscarDNI').addEventListener('click', function () {
             var dni = document.getElementById('dni_cliente').value;
             if (dni) {
-                // Realizamos una petición AJAX para buscar al cliente por DNI
                 fetch(`/venta/buscar-cliente/${dni}`)
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            // Si se encuentra el cliente, completar los campos
                             var cliente = data.cliente;
                             document.getElementById('id_cliente').value = cliente.id_cliente; // Asigna el ID del cliente
 
-                            // Mostrar alerta de cliente encontrado
                             Swal.fire({
                                 title: 'Cliente Encontrado!',
                                 text: `El cliente ${cliente.nombre} ha sido encontrado.`,
                                 icon: 'success',
                                 showConfirmButton: false,
-                                timer: 2000, // Duración de la alerta en milisegundos
+                                timer: 2000,
                                 willClose: () => {
-                                    // Puedes agregar aquí cualquier acción después de que la alerta se cierre
                                 }
                             });
                         } else {
-                            // Si no se encuentra el cliente
                             Swal.fire({
                                 title: 'Cliente No Encontrado',
                                 text: 'No se ha encontrado un cliente con ese DNI.',
                                 icon: 'error',
                                 showConfirmButton: false,
-                                timer: 2000, // Duración de la alerta
+                                timer: 2000,
                                 willClose: () => {
-                                    // Aquí también puedes agregar alguna acción posterior si lo deseas
                                 }
                             });
                         }

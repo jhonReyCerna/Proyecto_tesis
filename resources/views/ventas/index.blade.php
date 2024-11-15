@@ -7,26 +7,23 @@
 @stop
 
 @section('content')
-    <!-- Mensaje de éxito -->
     @if(session('success'))
         <div class="alert alert-success">
             {{ session('success') }}
         </div>
     @endif
 
-    <!-- Buscador sin recarga -->
     <form class="mb-3">
         <div class="input-group">
             <input type="text" id="search" class="form-control" placeholder="Buscar por cliente, total o fecha de venta">
         </div>
     </form>
 
-    <!-- Botón para agregar nueva venta -->
     <a href="{{ route('ventas.create') }}" class="btn btn-primary mb-3">Nueva Venta</a>
+    <a href="{{ route('ventas.reporte') }}" class="btn btn-success mb-3"> <i class="fas fa-file-pdf"></i> Generar Reporte PDF</a>
 
     <div class="card">
         <div class="card-body">
-            <!-- Tabla de ventas -->
             <table class="table table-bordered table-striped">
                 <thead>
                     <tr>
@@ -68,7 +65,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // Funcionalidad para eliminar con SweetAlert2
         document.querySelectorAll('.delete-btn').forEach(function(button) {
             button.addEventListener('click', function() {
                 const form = this.closest('.delete-form');
@@ -89,7 +85,6 @@
             });
         });
 
-        // Buscador sin recarga
         document.getElementById('search').addEventListener('keyup', function() {
             const searchValue = this.value.toLowerCase();
             const rows = document.querySelectorAll('#ventas-table tr');
