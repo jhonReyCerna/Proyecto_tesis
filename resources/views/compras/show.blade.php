@@ -1,61 +1,81 @@
 @extends('adminlte::page')
-@section('title', 'Detalle de Venta')
+
+@section('title', 'Detalle de Compra')
+
+@section('content_header')
+    <h1>Detalle de Compra #{{ $compra->id_compra }}</h1>
+@stop
 
 @section('content')
-<div class="container mt-5">
-    <h2 class="text-center text-info mb-4">Detalle de la Venta #{{ $venta->id }}</h2>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Información de la Compra</h5>
+                            <table class="table table-bordered">
+                                <tr>
+                                    <th>ID Compra:</th>
+                                    <td>{{ $compra->id_compra }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Producto:</th>
+                                    <td>{{ $compra->producto->nombre }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Proveedor:</th>
+                                    <td>{{ $compra->proveedor->nombre }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Almacén:</th>
+                                    <td>{{ $compra->almacen->nombre }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Fecha:</th>
+                                    <td>{{ \Carbon\Carbon::parse($compra->fecha)->format('d/m/Y') }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Detalles de la Transacción</h5>
+                            <table class="table table-bordered">
+                                <tr>
+                                    <th>Cantidad:</th>
+                                    <td>{{ $compra->cantidad }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Precio Unitario:</th>
+                                    <td>S/. {{ number_format($compra->precio_unitario, 2) }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Total:</th>
+                                    <td>S/. {{ number_format($compra->total, 2) }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Estado:</th>
+                                    <td>
+                                        @if($compra->estado == 'pendiente')
+                                            <span class="badge badge-success">Completada</span>
+                                        @else
+                                            <span class="badge badge-warning">{{ ucfirst($compra->estado) }}</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
 
-    <div class="card p-4 rounded-lg shadow-lg">
-        <!-- Información del Cliente -->
-        <h4 class="text-primary">Información del Cliente</h4>
-        <ul class="list-group list-group-flush mb-4">
-            <li class="list-group-item"><strong>Nombre del Cliente:</strong> {{ $venta->cliente->nombre ?? 'N/A' }}</li>
-            <li class="list-group-item"><strong>DNI:</strong> {{ $venta->cliente->dni ?? 'N/A' }}</li>
-        </ul>
-
-        <!-- Detalles de Productos -->
-        <h4 class="text-primary">Detalles de Productos</h4>
-        <table class="table table-bordered table-hover">
-            <thead class="thead-dark">
-                <tr>
-                    <th>Producto</th>
-                    <th>Cantidad</th>
-                    <th>Precio Unitario</th>
-                    <th>Total Producto</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse ($venta->detalles as $detalle)
-                <tr>
-                    <td>{{ $detalle->producto->nombre ?? 'N/A' }}</td>
-                    <td>{{ $detalle->cantidad }}</td>
-                    <td>{{ number_format($detalle->precio_unitario, 2) }} S/</td>
-                    <td>{{ number_format($detalle->total, 2) }} S/</td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="4" class="text-center">No hay productos en esta venta</td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
-
-        <!-- Resumen de Venta -->
-        <h4 class="text-primary mt-4">Resumen de Venta</h4>
-        <ul class="list-group list-group-flush">
-            <li class="list-group-item"><strong>Total a Pagar:</strong> {{ number_format($venta->totalPagar ?? 0, 2) }} S/</li>
-            <li class="list-group-item"><strong>Descuento Aplicado:</strong> {{ $venta->descuento ?? 0 }}%</li>
-            <li class="list-group-item"><strong>Total con Descuento:</strong> {{ number_format($venta->totalConDescuento ?? 0, 2) }} S/</li>
-            <li class="list-group-item">
-                <p><strong>Fecha de Venta:</strong> {{ $venta->fecha_venta->format('d/m/Y') }}</p>
-            </li>
-            <li class="list-group-item"><strong>Estado:</strong> {{ $venta->estado ?? 'Desconocido' }}</li>
-        </ul>
-
-        <!-- Botón de Regreso -->
-        <div class="d-flex justify-content-end mt-4">
-            <a href="{{ route('ventas.index') }}" class="btn btn-secondary">Volver a la Lista</a>
+                    <div class="mt-4">
+                        <a href="{{ route('compras.index') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Volver
+                        </a>
+                        <a href="{{ route('compras.edit', $compra->id_compra) }}" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> Editar
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-</div>
-@endsection
+@stop

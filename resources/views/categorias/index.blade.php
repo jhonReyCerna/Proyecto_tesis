@@ -28,7 +28,7 @@
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Nombre</th>
+                        <th>Categoría</th>
                         <th>Descripción</th>
                         <th>Acciones</th>
                     </tr>
@@ -83,7 +83,7 @@
             });
         });
 
-       
+
         document.getElementById('search').addEventListener('keyup', function() {
             const searchValue = this.value.toLowerCase();
             const rows = document.querySelectorAll('#categorias-table tr');
