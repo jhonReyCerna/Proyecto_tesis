@@ -332,6 +332,7 @@ return [
             'text' => 'Proveedores',
             'route' => 'proveedores.index',
             'icon' => 'fas fa-user-tie',
+         
 
         ],
         [
@@ -339,31 +340,38 @@ return [
             'route' => 'categorias.index',
             'icon' => 'fas fa-weight-hanging',
 
+
         ],
         [
             'text' => 'Clientes',
             'route' => 'clientes.index',
             'icon' => 'fas fa-user-friends',
+
+
         ],
         [
             'text' => 'Almacenes',
             'route' => 'almacenes.index',
             'icon' => 'fas fa-store',
+
         ],
         [
             'text' => 'Productos',
             'route' => 'productos.index',
             'icon' => 'fas fa-dolly-flatbed',
+
         ],
         [
             'text' => 'Compras',
             'route' => 'compras.index',
             'icon' => 'fab fa-shopify',
+
         ],
         [
             'text' => 'Facturar',
             'route' => '',
             'icon' => 'fas fa-donate',
+
             'submenu' => [
                 [
                     'text' => 'Ventas',
