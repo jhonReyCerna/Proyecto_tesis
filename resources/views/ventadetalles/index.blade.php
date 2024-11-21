@@ -26,7 +26,7 @@
                     <tr>
                         <th>ID</th>
                         <th>ID Venta</th>
-                        <th>ID Producto</th>
+                        <th>Producto</th>
                         <th>Cantidad</th>
                         <th>Precio Unitario</th>
                         <th>Acciones</th>
@@ -37,7 +37,7 @@
                         <tr>
                             <td>{{ $ventaDetalle->id_detalle }}</td>
                             <td>{{ $ventaDetalle->id_venta }}</td>
-                            <td>{{ $ventaDetalle->id_producto }}</td>
+                            <td>{{ $ventaDetalle->producto->nombre }}</td>
                             <td>{{ $ventaDetalle->cantidad }}</td>
                             <td>{{ number_format($ventaDetalle->precio_unitario, 2, ',', '.') }}</td>
                             <td>

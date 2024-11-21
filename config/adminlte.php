@@ -332,7 +332,7 @@ return [
             'text' => 'Proveedores',
             'route' => 'proveedores.index',
             'icon' => 'fas fa-user-tie',
-         
+
 
         ],
         [
@@ -355,10 +355,12 @@ return [
             'icon' => 'fas fa-store',
 
         ],
+
         [
             'text' => 'Productos',
             'route' => 'productos.index',
             'icon' => 'fas fa-dolly-flatbed',
+
 
         ],
         [
@@ -386,6 +388,14 @@ return [
 
             ],
         ],
+
+        [
+            'text' => 'Predicciones de ventas',
+            'url' => 'predicciones.index',
+            'icon' => 'fas fa-cogs',
+        ],
+
+
 
     ],
 

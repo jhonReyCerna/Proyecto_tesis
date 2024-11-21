@@ -6,6 +6,7 @@ use App\Http\Controllers\ChartController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\CompraController;
 use App\Http\Controllers\GraficoController;
+use App\Http\Controllers\PrediccionController;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\ProveedorController;
 use App\Http\Controllers\VentaController;
@@ -172,3 +173,6 @@ Route::get('/graficos', [GraficoController::class, 'index'])->name('graficos.ind
 
 
 Route::get('graficos/pdf', [GraficoController::class, 'generatePDF'])->name('graficos.pdf');
+
+Route::get('/predicciones.index', [PrediccionController::class, 'index'])->name('predicciones.index');
+
