@@ -17,6 +17,7 @@ class VentasDetallesSeeder extends Seeder
         foreach ($ventas as $venta_id) {
             // Generate 1-5 details per venta
             $numDetalles = rand(1, 5);
+            $totalVenta = 0;
 
             for ($i = 0; $i < $numDetalles; $i++) {
                 $cantidad = rand(1, 10);
@@ -24,6 +25,7 @@ class VentasDetallesSeeder extends Seeder
                 $descuento = rand(0, 50) + (rand(0, 99) / 100);
                 $subtotal = ($cantidad * $precio) - $descuento;
                 $igv = $subtotal * 0.18;
+                $totalVenta += $subtotal + $igv;
 
                 DB::table('ventas_detalles')->insert([
                     'id_venta' => $venta_id,
@@ -38,6 +40,11 @@ class VentasDetallesSeeder extends Seeder
                     'updated_at' => now()
                 ]);
             }
+
+            // Actualizar el total de la venta
+            DB::table('ventas')
+                ->where('id_venta', $venta_id)
+                ->update(['totalPagar' => $totalVenta]);
         }
     }
 }

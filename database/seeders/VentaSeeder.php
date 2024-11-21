@@ -31,7 +31,7 @@ class VentaSeeder extends Seeder
 
             DB::table('ventas')->insert([
                 'id_cliente' => $clientes->random(),
-                'totalPagar' => rand(100, 1000) + (rand(0, 99) / 100), // Random amount with cents
+                'totalPagar' => 0, // Inicializar en 0
                 'fecha_venta' => $fecha->format('Y-m-d'),
                 'estado' => 'completado', // Fixed estado to 'completado'
                 'created_at' => $fecha,

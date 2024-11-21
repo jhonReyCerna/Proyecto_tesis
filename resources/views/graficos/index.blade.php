@@ -45,7 +45,7 @@
                 <h3 class="card-title">Clientes</h3>
             </div>
             <div class="card-body" style="height: 400px; display: flex; justify-content: center; align-items: center;">
-                <div style="width: 80%;">
+                <div style="width: 60%;">
                     <canvas id="clientesChart"></canvas>
                 </div>
             </div>
@@ -59,6 +59,31 @@
             <div class="card-body" style="height: 400px; display: flex; justify-content: center; align-items: center;">
                 <div style="width: 80%;">
                     <canvas id="productosChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Productos por Stock</h3>
+            </div>
+            <div class="card-body" style="height: 400px; display: flex; justify-content: center; align-items: center;">
+                <div style="width: 50%;">
+                    <canvas id="productosStockChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Ventas por Mes</h3>
+            </div>
+            <div class="card-body" style="height: 400px; display: flex; justify-content: center; align-items: center;">
+                <div style="width: 80%;">
+                    <canvas id="ventasChart"></canvas>
                 </div>
             </div>
         </div>
@@ -214,7 +239,7 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         options: {
             responsive: true,
-            indexAxis: 'y', 
+            indexAxis: 'y',
             plugins: {
                 legend: {
                     display: false
@@ -227,6 +252,86 @@ document.addEventListener('DOMContentLoaded', function() {
             scales: {
                 y: {
                     beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Productos Stock Chart
+    const ctxProductosStock = document.getElementById('productosStockChart').getContext('2d');
+    new Chart(ctxProductosStock, {
+        type: 'doughnut',
+        data: {
+            labels: ['Stock Bajo', 'Stock Normal', 'Stock Alto'],
+            datasets: [{
+                data: [data.stockBajo, data.stockNormal, data.stockAlto],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.8)',
+                    'rgba(75, 192, 192, 0.8)',
+                    'rgba(54, 162, 235, 0.8)'
+                ],
+                borderColor: [
+                    'rgb(255, 99, 132)',
+                    'rgb(75, 192, 192)',
+                    'rgb(54, 162, 235)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'right',
+                },
+                title: {
+                    display: true,
+                    text: 'Distribución de Stock de Productos'
+                }
+            }
+        }
+    });
+
+    // Ventas Chart
+    const ctxVentas = document.getElementById('ventasChart').getContext('2d');
+    new Chart(ctxVentas, {
+        type: 'line',
+        data: {
+            labels: data.meses,
+            datasets: [{
+                label: 'Ventas Mensuales',
+                data: data.ventasPorMes,
+                backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                borderColor: 'rgba(153, 102, 255, 1)',
+                borderWidth: 2,
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: 'Tendencia de Ventas Mensuales'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Número de Ventas'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Mes'
+                    }
                 }
             }
         }
