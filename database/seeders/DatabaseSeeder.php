@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Venta;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -9,8 +10,16 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         $this->call([
-            RolesAndPermissionsSeeder::class,
-            UserSeeder::class,
+            //RolesAndPermissionsSeeder::class,
+            //UserSeeder::class,
+            CategoriaSeeder::class,
+            ProveedorSeeder::class,
+            AlmacenSeeder::class,
+            ProductoSeeder::class,
+            ClienteSeeder::class,
+            CompraSeeder::class,
+            VentaSeeder::class,
+            VentasDetallesSeeder::class,
         ]);
     }
 }
