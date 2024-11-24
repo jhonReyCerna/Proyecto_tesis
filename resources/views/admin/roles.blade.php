@@ -1,11 +1,9 @@
 @extends('layouts.admin')
 @section('dashName', 'Dashboard')
 @section('mainContent')
-    <!-- Page Content-->
-    <section class="pt-4">
+     <section class="pt-4">
         <div class="container px-lg-5">
-            <!-- Page Features-->
-            <div class="row gx-lg-5">
+             <div class="row gx-lg-5">
                 <div class="navbar">
                     <div class="container-fluid">
                         <h3><i>Roles</i></h3>
@@ -33,13 +31,11 @@
                                         <a href="{{route('editarRol', [$item->idRole])}}" class="btn btn-info btn-sm"><i class="fas fa-edit"></i> Editar</a>
                                         &nbsp; &nbsp; &nbsp;
 
-                                        <!-- Button trigger modal -->
-                                        <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal-{{$item->idRole}}">
+                                         <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal-{{$item->idRole}}">
                                             <i class="fas fa-trash"></i> Eliminar
                                         </button>
-                                    
-                                        <!-- Modal -->
-                                        <div class="modal fade" id="exampleModal-{{$item->idRole}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+
+                                         <div class="modal fade" id="exampleModal-{{$item->idRole}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                                             <div class="modal-dialog modal-dialog-centered">
                                                 <div class="modal-content">
                                                     <form action="{{route('eliminarRol', $item->idRole)}}" method="post">

@@ -257,8 +257,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Productos Stock Chart
-    const ctxProductosStock = document.getElementById('productosStockChart').getContext('2d');
+     const ctxProductosStock = document.getElementById('productosStockChart').getContext('2d');
     new Chart(ctxProductosStock, {
         type: 'doughnut',
         data: {
@@ -292,8 +291,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Ventas Chart
-    const ctxVentas = document.getElementById('ventasChart').getContext('2d');
+     const ctxVentas = document.getElementById('ventasChart').getContext('2d');
     new Chart(ctxVentas, {
         type: 'line',
         data: {

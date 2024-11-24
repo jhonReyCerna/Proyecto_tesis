@@ -7,9 +7,7 @@ use Illuminate\Support\Facades\DB;
 
 class AlmacenSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
+   
     public function run(): void
     {
         DB::table('almacenes')->insert([

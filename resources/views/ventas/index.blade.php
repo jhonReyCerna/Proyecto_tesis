@@ -27,7 +27,7 @@
             <table class="table table-bordered table-striped">
                 <thead>
                     <tr>
-                        <th>ID Venta</th>
+                        <th>NRO</th>
                         <th>Cliente</th>
                         <th>Total Pagar</th>
                         <th>Fecha de Venta</th>

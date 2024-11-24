@@ -78,7 +78,7 @@ class VentaController extends Controller
         $venta->save();
 
         // Redirigir con un mensaje de éxito
-        return redirect()->route('ventas.index')->with('success', 'Venta y productos guardados correctamente.');
+        return redirect()->route('ventas.index')->with('success', 'Venta registrada correctamente.');
     }
 
     // Ver los detalles de una venta

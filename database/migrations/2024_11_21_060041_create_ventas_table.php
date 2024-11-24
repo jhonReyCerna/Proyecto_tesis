@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // Crear la tabla ventas
+
         Schema::create('ventas', function (Blueprint $table) {
             $table->id('id_venta');
             $table->unsignedBigInteger('id_cliente');
@@ -17,14 +17,14 @@ return new class extends Migration
             $table->string('estado', 20);
             $table->timestamps();
 
-            // Definir la clave foránea a la tabla clientes
+
             $table->foreign('id_cliente')->references('id_cliente')->on('clientes')->onDelete('cascade');
         });
     }
 
     public function down(): void
     {
-        // Eliminar la tabla ventas
+
         Schema::dropIfExists('ventas');
     }
 };

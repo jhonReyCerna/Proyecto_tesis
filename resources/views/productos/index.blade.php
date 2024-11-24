@@ -13,8 +13,7 @@
         </div>
     @endif
 
-    <!-- Búsqueda sin recarga -->
-    <form class="mb-3">
+     <form class="mb-3">
         <div class="input-group">
             <input type="text" id="search" class="form-control" placeholder="Buscar por nombre, categoría o proveedor">
         </div>
@@ -70,8 +69,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // Funcionalidad de SweetAlert2 para eliminar productos
-        document.querySelectorAll('.delete-btn').forEach(function(button) {
+
+document.querySelectorAll('.delete-btn').forEach(function(button) {
             button.addEventListener('click', function() {
                 const form = this.closest('.delete-form');
                 Swal.fire({

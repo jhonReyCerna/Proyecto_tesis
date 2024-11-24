@@ -8,7 +8,7 @@
 
 @section('content')
 <div class="row gy-4">
-    <!-- Sección de Información General -->
+
     <div class="col-md-4">
         <div class="card border-0 shadow-lg" style="background: linear-gradient(135deg, #6dd5ed, #2193b0); color: white;">
             <div class="card-body">
@@ -34,7 +34,7 @@
         </div>
     </div>
 
-    <!-- Tabla de Productos Vendidos -->
+
     <div class="col-md-8">
         <div class="card border-0 shadow-lg">
             <div class="card-header text-white" style="background: #2a9d8f;">

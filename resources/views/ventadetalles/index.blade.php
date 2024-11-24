@@ -81,8 +81,7 @@
             });
         });
 
-        // Funcionalidad de búsqueda sin recarga
-        document.getElementById('search').addEventListener('keyup', function() {
+         document.getElementById('search').addEventListener('keyup', function() {
             const searchValue = this.value.toLowerCase();
             const rows = document.querySelectorAll('#detalle-ventas-table tr');
 

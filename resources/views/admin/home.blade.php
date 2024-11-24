@@ -1,8 +1,7 @@
 @extends('layouts.admin')
 @section('dashName', 'Dashboard')
 @section('mainContent')
-    <!-- Header-->
-    <header class="py-5">
+     <header class="py-5">
         <div class="container px-lg-5">
             <div class="p-4 p-lg-5 bg-light rounded-3 text-center">
                 <div class="m-4 m-lg-5">
@@ -13,11 +12,9 @@
             </div>
         </div>
     </header>
-    <!-- Page Content-->
-    <section class="pt-4">
+     <section class="pt-4">
         <div class="container px-lg-5">
-            <!-- Page Features-->
-            <div class="row gx-lg-5">
+             <div class="row gx-lg-5">
                 <h1><center>CONTENIDO</center></h1>
             </div>
         </div>

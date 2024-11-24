@@ -8,9 +8,7 @@ use Illuminate\Support\Facades\DB;
 
 class ClienteSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
+    
     public function run(): void
     {
         DB::table('clientes')->insert([

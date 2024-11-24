@@ -7,12 +7,10 @@ use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
+    
     public function up(): void
     {
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;'); // Desactiva las comprobaciones de claves foráneas
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
         Schema::create('almacenes', function (Blueprint $table) {
             $table->id('id_almacen');
@@ -25,15 +23,12 @@ return new class extends Migration
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
         Schema::dropIfExists('almacenes');
 
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;'); 
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
     }
 };

@@ -32,13 +32,13 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('password'),
             ],
 
-            
+
         ];
 
         foreach ($users as $user) {
             $newUser = User::create($user);
 
-            // Asignar roles según el nombre
+
             switch($user['name']) {
                 case 'Gerente':
                     $newUser->assignRole('gerente');

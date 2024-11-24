@@ -11,7 +11,7 @@ class RolesAndPermissionsSeeder extends Seeder
 {
     public function run()
     {
-        // Limpiar caché y datos existentes
+
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
@@ -22,23 +22,24 @@ class RolesAndPermissionsSeeder extends Seeder
         DB::table('permissions')->truncate();
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        // Crear permisos
+
         Permission::firstOrCreate(['name' => 'manage sales']);
         Permission::firstOrCreate(['name' => 'manage inventory']);
         Permission::firstOrCreate(['name' => 'process payments']);
-        Permission::firstOrCreate(['name' => 'manage categories']);  // Este es el nombre correcto
+        Permission::firstOrCreate(['name' => 'manage categories']);
         Permission::firstOrCreate(['name' => 'manage suppliers']);
-        Permission::firstOrCreate(['name' => 'manage clients']);    // Este es el nombre correcto
+        Permission::firstOrCreate(['name' => 'manage clients']);
 
-        // Crear roles y asignar permisos
+
+
         $gerente = Role::firstOrCreate(['name' => 'gerente']);
         $gerente->givePermissionTo([
             'manage sales',
             'manage inventory',
             'process payments',
-            'manage categories',   // Corregido de 'manage categorias'
+            'manage categories',
             'manage suppliers',
-            'manage clients'       // Corregido de 'manage clientes'
+            'manage clients'
         ]);
 
         $asesorVenta = Role::firstOrCreate(['name' => 'asesores de venta']);

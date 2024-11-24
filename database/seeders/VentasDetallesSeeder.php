@@ -10,12 +10,12 @@ class VentasDetallesSeeder extends Seeder
 {
     public function run()
     {
-        // Get existing ventas and productos
+
         $ventas = DB::table('ventas')->pluck('id_venta');
         $productos = DB::table('productos')->pluck('id_producto');
 
         foreach ($ventas as $venta_id) {
-            // Generate 1-5 details per venta
+
             $numDetalles = rand(1, 5);
             $totalVenta = 0;
 
@@ -41,7 +41,6 @@ class VentasDetallesSeeder extends Seeder
                 ]);
             }
 
-            // Actualizar el total de la venta
             DB::table('ventas')
                 ->where('id_venta', $venta_id)
                 ->update(['totalPagar' => $totalVenta]);
