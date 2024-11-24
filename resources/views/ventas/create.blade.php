@@ -51,7 +51,7 @@
                         <label for="id_producto[]" class="form-label">Producto</label >
                         <select name="productos[0][id_producto]" class="form-control producto-select">
                             <option value="" disabled selected>Seleccionar Producto</option>
-                            @foreach($productos as $producto)
+                            @foreach($productos->sortBy('nombre') as $producto)
                                 <option value="{{ $producto->id_producto }}" data-precio="{{ $producto->precio }}">{{ $producto->nombre }}</option>
                             @endforeach
                         </select>
@@ -127,7 +127,7 @@
                 <label for="id_producto[]" class="form-label">Producto</label>
                 <select name="productos[${count}][id_producto]" class="form-control producto-select">
                     <option value="" disabled selected>Seleccionar Producto</option>
-                    @foreach($productos as $producto)
+                    @foreach($productos->sortBy('nombre') as $producto)
                         <option value="{{ $producto->id_producto }}" data-precio="{{ $producto->precio }}">{{ $producto->nombre }}</option>
                     @endforeach
                 </select>
